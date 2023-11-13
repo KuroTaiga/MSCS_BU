@@ -1,0 +1,129 @@
+---
+title: "Jankun_Dong_HW4_CS555"
+author: "Jiankun (Bob) Dong CM3226"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(kableExtra)
+library(car)
+```
+
+
+```{r include = TRUE}
+hw4_data <- read.csv("./A04.csv")
+attach(hw4_data)
+#summary(hw4_data)
+```
+Overall summary of the data:
+```{r}
+hw4_df <- data.frame(Education_Level = hw4_data$EL,
+             Income = hw4_data$Inc,
+             Women_Percentage = hw4_data$Perc,
+             Prestige_Score = hw4_data$Score)
+pairs(hw4_df)
+```
+
+Problem 1:\
+```{r}
+plot(EL ,Score, xlab = "Education Level (years)", ylab = "Prestige Score")
+EL_Score_cor <- cor(EL,Score)
+```
+As the correlation coefficient between education level(years) and prestige score is `r EL_Score_cor`, there's a strong positive linear relationship between education level and prestige score. \
+Problem 2:\
+```{r}
+hw4_m_el <- lm(Score ~ EL,data = hw4_df)
+resid_el <-resid(hw4_m_el)
+summary(hw4_m_el)
+```
+There's a strong positive linear relationship between education level and prestige score. \
+Here's the residual plot against education level: \
+```{r}
+par(mfrow = c(1,2))
+plot(EL ,resid_el ,xlab = "Education level (years)",ylab = "Residual", main = "Residual Plot")
+abline(0, 0)
+hist(resid_el,main = "Histogram plot of residuals")
+```
+\
+From the plot above, we can see that the residuals are roughly equal variance and linearly distributed. However, from the histogram we can see that the residual is slightly left screwed, due to a few points with low residual values. Those points will show up on the following tests for influence points and outliers. If we ignore those points, we can say that the residual also follows the normality assumption.
+Now for outliers and influence points: \
+```{r}
+outlierTest(hw4_m_el)
+```
+No outliers.\
+```{r}
+b <- influence.measures(hw4_m_el)
+c <- which(apply(b$is.inf, 1, any))
+hw4_data[rownames(hw4_data) %in% c, ]
+
+```
+There are 3 influence points as show above (ID; 41, 46 and 53). From the previous scatter plot we can see that all three influence points have similar effect on the slop: They lower the value of the slop. \
+Problem 3: \
+```{r}
+hw4_lm<-lm(Score ~ EL + Inc + Perc,data = hw4_data)
+residual_hw4 <- resid(hw4_lm)
+summary(hw4_lm)
+```
+Step 1: \
+$H_0 : \beta_1 = \beta_2 = \beta_3 =0$ \
+$H_1 : \beta_i \neq 0$ for at least one i \
+$\alpha = 0.05$ \
+$k = 3, n = 102$ \
+Step 2: \
+We use $F = \frac{RegMS}{ResMS}$
+Step 3: \
+The decision rule is reject $H_0$ if $F \geq F(3,98,0.05)$, which is F = `r qf(0.05,3,98)` \ 
+Step 4: \
+```{r}
+summary(hw4_lm)
+```
+Step 5: \
+F value (129.2) is way bigger than `r qf(0.05,3,98)`, reject $H_0$. \
+There is evidence for a linear association between the prestige score and (education level, income and percent of women) at $\alpha = 0.05$ level. (The overall model is significant) \
+
+Problem 4: \
+```{r}
+tcrit <- qt(1-0.05/2,102-1-3)
+summary(hw4_lm)
+confhw <- confint(hw4_lm,level =0.95)
+```
+The critical value of t for $\alpha = 0.05$ is `r tcrit`.
+From the summary we can see that: \
+Education level is a significant predictor of prestige level after adjusting for income and percent of women. \
+After controlling income and percent of women, for 1 year increase in the education level, the prestige level increase by `r coefficients(hw4_lm)[2]`. The 95% confidence interval is (`r confhw[2]`,`r confhw[6]`). \
+\
+Income is a significant predictor of prestige level after adjusting for education level and percent of women. \
+After controlling education level and percent of women, for 1 dollar increase in income, the prestige level increase by `r coefficients(hw4_lm)[3]`. The 95% confidence interval is (`r confhw[3]`,`r confhw[7]`). \
+\
+At $\alpha = 0.05$, percentage of women is not a significant predictor for prestige level, after adjusting for education level and income. \
+Problem 5: \
+```{r}
+plot(fitted(hw4_lm),residual_hw4,axes=TRUE, frame.plot=TRUE, xlab='fitted values', ylab='residue')
+abline(0,0)
+plot(EL, residual_hw4, axes=TRUE, frame.plot=TRUE, xlab='education level', ylab='residue')
+abline(0,0)
+plot(Inc, residual_hw4, axes=TRUE, frame.plot=TRUE, xlab='income', ylab='residue')
+abline(0,0)
+plot(Perc, residual_hw4, axes=TRUE, frame.plot=TRUE, xlab='percentage of women', ylab='residue')
+abline(0,0)
+hist(residual_hw4)
+
+```
+Based on the graph, I think the model is reasonable as for each variable, the residual follows: linearity and equal variance. And the residual is roughly normal distributed. However, we might want to gather more data on people with higher values of incomes, as there's currently very few data points for us to say for certain that it follows equal variance. 
+
+```{r}
+outlierTest(hw4_lm)
+```
+No outliers. \
+```{r}
+b <- influence.measures(hw4_lm)
+c <- which(apply(b$is.inf, 1, any))
+hw4_data[rownames(hw4_data) %in% c, ]
+```
+There are 7 influence points as shown.
+
+
+
+

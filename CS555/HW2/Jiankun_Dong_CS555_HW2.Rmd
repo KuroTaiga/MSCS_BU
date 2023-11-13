@@ -1,0 +1,116 @@
+---
+title: "Jiankun_Dong_CS555_HW2"
+author: "Jiankun (Bob) Dong CM3226"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(kableExtra)
+```
+
+Problem 1:
+
+```{r include=TRUE}
+kid_cal <- read.csv("kid_cal.csv")
+Kid_meal <- kid_cal$Calories[kid_cal$trt == T]
+Kid_no_meal <- kid_cal$Calories[kid_cal$trt == F]
+
+IQparticipant <- 1.5*(quantile(Kid_meal,.75)[[1]]-quantile(Kid_meal,.25)[[1]])
+outlierMeal <- Kid_meal < quantile(Kid_meal,.25)[[1]]-IQparticipant | Kid_meal > quantile(Kid_meal, .75)[[1]]+IQparticipant
+#sum(outlierMeal) There are no outliers
+mealFrame <- data.frame(
+  Mean = mean(Kid_meal),
+  Median = median(Kid_meal),
+  SD = sd(Kid_meal),
+  First_Quantile = quantile(Kid_meal,.25)[[1]],
+  Third_Quantile = quantile(Kid_meal,.75)[[1]],
+  Min = min(Kid_meal),
+  Max = max(Kid_meal),
+  outlier = "NULL"
+)
+
+IQNonparticipant <- 1.5*(quantile(Kid_no_meal,.75)[[1]]-quantile(Kid_no_meal,.25)[[1]])
+outlierNoMeal <- Kid_no_meal< quantile(Kid_no_meal,.25)[[1]]-IQNonparticipant | Kid_no_meal > quantile(Kid_no_meal,.75)[[1]]+IQNonparticipant
+
+noMealFrame <- data.frame(
+  Mean = mean(Kid_no_meal),
+  Median = median(Kid_no_meal),
+  SD = sd(Kid_no_meal),
+  First_Quantile = quantile(Kid_no_meal,.25)[[1]],
+  Third_Quantile = quantile(Kid_no_meal,.75)[[1]],
+  Min = min(Kid_no_meal),
+  Max = max(Kid_no_meal),
+  outliner = Kid_no_meal[outlierNoMeal]
+)
+
+```
+
+Summary of Calorie for Participants of Meal Preparation:
+
+```{r include=TRUE}
+(mealTable <- kable(mealFrame,"simple"))
+```
+
+Summary of Calorie for Non-Participants of Meal Preparation:
+
+```{r include=TRUE}
+(nomealTable <- kable(noMealFrame,"simple"))
+```
+
+```{r include=TRUE}
+par(mfrow = c(1,2))
+hist(Kid_meal, main = "Calorie Distribution for Participants", 
+     xlab = "Calorie", ylab = "Child Count",breaks = 10, xlim = c(100,700))
+hist(Kid_no_meal, main = "Calorie Distribution for Non-Participants", 
+     xlab = "Calorie", ylab = "Child Count",breaks = 10, xlim=c(100,700))
+```
+
+The graph of non-participant's meal calorie distribution follows roughly a normal distribution, with ONE outlier on the right side of the graph.
+
+The graph of participant's meal calorie distribution also roughly follows a normal distribution, but without any outlier.
+
+Both graph have similar shape, but non-participant's graph has a wider range of calorie.
+
+Problem 2:\
+
+```{r}
+alpha <- 0.05
+n <- length(Kid_meal)
+```
+
+Step 1: $H_0$ : $\mu 0 = 425$ $H_1$ : $\mu 1 \neq 425$ $\alpha = 0.05$ and $n=25$, df = 24\
+Step 2: because the population $\sigma$ is unknown and the sample is small, use the t test where $t=\frac{\overline{x}-\mu}{\frac {S}{\sqrt{n}} }$ \
+Step 3: Decision rule: Reject $H_0$ if $t \ge 2.064$ or  $t \le -2.064$\
+Step 4:
+```{r}
+xbar <- mean(Kid_meal)
+S <- sd(Kid_meal)
+t <- (xbar - 425)*sqrt(25)/S
+```
+the t value is `r t` \
+Step 5: Do not reject $H_0$ \
+We do not have strong evidence that at confidence level $\alpha=0.05$ that the mean calorie consumption for those who participated in the meal preparation differ from 425.\
+
+Problem 3:\
+```{r}
+meal_test <- t.test(Kid_meal,conf.level = .9)
+```
+The 90% confidence interval's lower bound is `r meal_test$conf.int[1]`, and upper bound is `r meal_test$conf.int[2]`. \
+This means that at 90% confidence level, we will reject hypothesis that states the mean of the participant's meal calorie is below`r meal_test$conf.int[1]`, or higher than `r meal_test$conf.int[2]`. \
+
+Problem 4:\
+Step1: $H_0 : \mu1=\mu2, H1 : \mu1 \ge \mu2, \alpha=0.05, df = 21$ where non-participant correspond to $\mu2$ \
+Step2: $t=\frac{(\overline x_1 - \overline x_2)-(\mu1-\mu2)}{\sqrt{\frac{S_1^2}{n_1} +\frac{S_2^2}{n_2}}}$\
+Step3: Decision rule: we reject $H_0$ if $t \ge 1.721$\
+Step4: 
+```{r}
+t_5 <- (mean(Kid_meal)-mean(Kid_no_meal))/sqrt(sd(Kid_meal)^2/25+sd(Kid_no_meal)^2/22)
+```
+
+Step5: Fail to reject $H_0$ because `r t_5` is not greater than 1.721 \
+We do not have significant evidence that at $\alpha=0.05$ level that participants consume more calorie than non-participants.\
+
+Problem 5:\
+The is indeed one outlier in the non-participant dataset. Furthermore, we don't know the method the data was taken, therefore we can't say with confidence that the samples are independent.\

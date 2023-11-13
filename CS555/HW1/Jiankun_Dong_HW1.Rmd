@@ -1,0 +1,88 @@
+---
+title: "Jiankun_Dong_HW1"
+author: "Jiankun (Bob) Dong"
+date: "2023-09-18"
+output: html_document
+---
+Using R Markdown to generate the file, therefore the r code are in-line.
+
+Problem 1: Using the given dataset\
+
+```{r setup, include=TRUE, echo = TRUE}
+#load kable lib for generating tables
+library(kableExtra)
+#loading the file
+setwd("C:/BU/CSSE/CS555/HW1")
+DaysRAW <- read.csv("./A01.csv",header = TRUE)
+```
+1) Loaded the csv file as DaysRaw.\
+2) Drawing the histogram based on the loaded data. \
+
+```{r , include=TRUE, echo = TRUE}
+DaysPlot <- hist(DaysRAW$Days, main = "Duration of Hospital Stays", 
+                 xlab = "Duration (Days)", 
+                 breaks = seq(min(DaysRAW),max(DaysRAW),1), 
+                 xlim = c(min(DaysRAW),max(DaysRAW)+1),
+                 ylim = (c(0,25)), plot = TRUE, right = F)
+```
+```{r , include=FALSE, echo = FALSE}
+daysMean <- mean(DaysRAW$Days)
+daysMedian <- median(DaysRAW$Days)
+daysVar <- var(DaysRAW$Days)
+daysSD <- sd(DaysRAW$Days)
+daysMin <- min(DaysRAW$Days)
+daysMax <- max(DaysRAW$Days)
+
+iqr <- quantile(DaysRAW$Days, .75)[[1]] - quantile(DaysRAW$Days,.25)[[1]]
+lowerBound <- quantile(DaysRAW$Days,.25)[[1]]-iqr*1.5
+upperBound <- quantile(DaysRAW$Days,.75)[[1]]+iqr*1.5
+outlier <-DaysRAW$Days<lowerBound | DaysRAW$Days>upperBound
+outlierDays <- DaysRAW$Days[outlier]
+```
+Shape: \ 
+The data is right skewed.\
+Center: \ 
+The center of the data is `r quantile(DaysRAW$Days, .5)` days.\
+Spread: \ 
+The first qualtile of the data is `r quantile(DaysRAW$Days,.25)` days, and the third quantile is `r quantile(DaysRAW$Days, .75)` days. With a standard diviation of `r daysSD`.\
+Outliers: \
+Because the iqr of the data is `r iqr` day, we get the lower bound `r lowerBound` and upper bound `r upperBound`\
+The outliers are: `r outlierDays`\
+
+3)\
+```{r include=TRUE, echo=TRUE}
+daysFrame <- data.frame(
+  Mean = daysMean,
+  Median = daysMedian,
+  SD = daysSD,
+  First_Quantile = quantile(DaysRAW$Days,.25)[[1]],
+  Third_Quantile = quantile(DaysRAW$Days,.75)[[1]],
+  Min = daysMin,
+  Max = daysMax
+)
+daysTable <- kable(daysFrame,"simple")
+```
+`r daysTable`
+Because the outliers are all beyond the third quantile, and the histogram is right skewed, the best value to summarize the center of this distribution is the median `r daysMedian` days.\
+
+The best number to describe the spread of the data is the standard deviation `r daysSD`.
+
+Problem 2: \
+4) \
+part a:\
+
+```{r include=TRUE, echo=TRUE}
+# Question 2 --------------------------------------------------------------
+LessThanTen <- (pnorm(10,5,3) - pnorm(0,5,3))/pnorm(0,5,3,lower.tail = FALSE)
+```
+The percentage of the patients in hospital for less than 10 days is `r 100*LessThanTen`%.\
+
+part b:\
+
+```{r include=TRUE, echo=TRUE}
+n <- 35
+SE <- 3/sqrt(n)
+MoreThanSix <- pnorm(6,5,SE,lower.tail = FALSE)/(1-pnorm(0,5,SE))
+```
+Because the sample size `r n` is larger than 30, we can use the CLT.
+The probability of the average of the data set being more than 6 days is `r MoreThanSix`.
