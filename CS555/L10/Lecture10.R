@@ -12,7 +12,7 @@ golf$brand <- as.factor(golf$brand)
 summary(golf)
 
 attach(golf)
-## runing anova using aov function
+## runing one-way anova using aov function
 g <- aov(dist~brand, data=golf)
 summary(g)
 
@@ -30,30 +30,41 @@ golf$g0 <- ifelse(brand=='Callaway', 1, 0)
 golf$g1 <- ifelse(brand=='Nike', 1, 0)
 golf$g2 <- ifelse(brand=='Titleist', 1, 0)
 
-##g0 is Callaway (Middle)
-##g1 is Nike (Lowest)
-##g2 is Titleist (Highest)
+##g0 is Callaway (Middle 285)
+##g1 is Nike (Lowest 260)
+##g2 is Titleist (Highest 290)
 ##g0 is the reference group
-m <- lm(dist~g1+g2, data=golf)
-summary(m)
+m0 <- lm(dist~g1+g2, data=golf)
 ##if use dummy variable, use anova, not aov
-anova(m)
+anova(m0) ##anova table
+#############################
+## This is for comparison
+#############################
+## runing one-way anova using aov function
+## one way anova is like a combined version 
+## of dummy variable anova
+g <- aov(dist~brand, data=golf)
+summary(g)
 
-##g0 is Callaway (Middle)
-##g1 is Nike (Lowest)
-##g2 is Titleist (Highest)
+## t test to compare means between groups
+summary(m0) ##display coefs
+
+
+##g0 is Callaway (Middle 285)
+##g1 is Nike (Lowest 260)
+##g2 is Titleist (Highest 290)
 ##g1 is the reference group
-m <- lm(dist~g0+g2, data=golf)
-summary(m)
-anova(m)
+m1 <- lm(dist~g0+g2, data=golf)
+anova(m1)
+summary(m1)
 
-##g0 is Callaway (Middle)
-##g1 is Nike (Lowest)
-##g2 is Titleist (Highest)
+##g0 is Callaway (Middle 285)
+##g1 is Nike (Lowest 260)
+##g2 is Titleist (Highest 290)
 ##g2 is the reference group
-m <- lm(dist~g0+g1, data=golf)
-summary(m)
-anova(m)
+m2 <- lm(dist~g0+g1, data=golf)
+anova(m2)
+summary(m2)
 
 ####################
 ## Section 02
@@ -65,44 +76,61 @@ summary(data)
 data$group <- as.factor(data$group)
 summary(data) ##Do you see the difference?
 
-aggregate(data$SBP, by=list(data$group), summary)
+aggregate(data$SBP, by=list(data$group), mean)
 aggregate(data$SBP, by=list(data$group), sd)
 boxplot(SBP~group, data=data, main="SBP by smoking status", xlab="group", 
         ylab="SBP", ylim=c(100, 160))
 
 # wrong example
-## treat group as if a continous variable
+## treat group as if a continuous variable
 mtest<- aov(SBP~grpnum, data=data)
 summary(mtest)
 # correct example
-m<- aov(SBP~group, data=data)
-summary(m)
+# Run a one-way ANOVA 
+# (without adjustment for age).
+# The global F-test showed that 
+# mean SBP differed by smoking
+# category (F=21.49 on 3 and 15 
+# degrees of freedom, p < 0.001).
+m1<- aov(SBP~group, data=data)
+summary(m1)
 qf(.95, df1=3, df2=15)
 
 #pairwise comparison
-pairwise.t.test(data$SBP, data$group, p.adj='none') 
-pairwise.t.test(data$SBP, data$group, p.adj='bonferroni') 
-
-data$fnum = factor(data$grpnum)
-data$fnum
-m1<- aov(data$SBP~data$fnum, data=data)
+pairwise.t.test(data$SBP, data$group, 
+                p.adj='none') 
+pairwise.t.test(data$SBP, data$group, 
+                p.adj='bonferroni') 
 TukeyHSD(m1)
 plot(TukeyHSD(m1), cex.axis=.7)
 
+## Dummy Variable version
 data$g0 <- ifelse(data$group=='Current heavy smoker', 1, 0)
 data$g1 <- ifelse(data$group=='Current light smoker', 1, 0)
 data$g2 <- ifelse(data$group=='Former smoker', 1, 0)
 data$g3 <- ifelse(data$group=='Never smoker', 1, 0)
+# g3 is the reference
 m2 <- lm(data$SBP~data$g0+data$g1+data$g2, data=data)
 summary(m2)
+
+# g0 is the reference
 m3 <- lm(data$SBP~data$g1+data$g2+data$g3, data=data)
 summary(m3)
+
+# g1 is the reference
 m4 <- lm(data$SBP~data$g0+data$g2+data$g3, data=data)
 summary(m4)
 
-# Use with caution! First group is always the reference group
-m5 <- lm(data$SBP~data$group, data=data)
+# g2 is the reference
+m5 <- lm(data$SBP~data$g0+data$g1+data$g3, data=data)
 summary(m5)
+
+# Use with caution! 
+# First group is always the reference group
+# match the results of g0 as the reference
+mg <- lm(data$SBP~data$group, data=data)
+summary(mg)
+anova(mg) ##match summary(m1)
 
 ##aov results differs when predictors
 ##are in different order
@@ -112,6 +140,7 @@ summary(aov(data$SBP~data$group+data$age, data=data))
 
 # ANCOVA
 library(car)
+## What do you find by adjusting for age?
 Anova(lm(data$SBP~data$group+data$age, data=data), type=3)
 #https://mcfromnz.wordpress.com/2011/03/02/anova-type-iiiiii-ss-explained/
 
@@ -120,40 +149,72 @@ Anova(lm(data$SBP~data$group, data=data))
 summary(aov(data$SBP~data$group, data=data))
 
 #Least square means
-#install.packages("emmeans")
+# also called Estimated marginal means (EMMs)
+# emmeans is the replacement for the lsmeans 
+# library, so if you see code referring to 
+# lsmeans, it is conceptually doing the same 
+# thing as what emmeans will do. emmeans is 
+# being developed; lsmeans is now deprecated. 
+install.packages("emmeans")
 library(emmeans)
+
+install.packages("lsmeans")
+library(lsmeans)
+
 options('contrasts')
+# contr.treatment is for non-ordered: eg. male vs female
 #http://www.dummies.com/programming/r/how-to-set-the-contrasts-for-your-data-with-r/
 X <- factor(c('A','B','C'))
 contr.treatment(X)
 
-flevels <- factor(rep(c("A","B","C"),c(10,10,10))) 
-vals <- sort(round(runif(30,3,15))) 
-contrasts(flevels)
+##Notice that we need to enter two contrast settings. 
+## The first handles unordered categorical variables, 
+## the second, ordered.
+## The setting is done by an options statement.
+## The "constrasts" set in your R environment 
+## determine how categorical variables are handled 
+## in your models. The most common scheme in regression 
+## is called "treatment contrasts": with treatment contrasts, 
+## the first level of the categorical variable is assigned 
+## the value 0, and then other levels measure the change 
+## from the first level.
+## Polynomial contrasts are useful for 
+## handling ordered variables, that is, variables whose 
+## levels are naturally ordered. 
+## In this case, we put here just for demo purpose.
 
-##install.packages("lsmeans")
-library(lsmeans)
-
-##check group levels and covar controlling value
 options(contrasts=c("contr.treatment", "contr.poly"))
 m6 <- lm(data$SBP~data$group+data$age,data=data)
-m6.rg1 <- ref.grid(m6)
+(m6.rg1 <- ref.grid(m6)) ##rgl: reference group level
 
-#The emmeans() function creates the emmeans object from a fitted lm() object
-# The 1st argument is the fitted lm object; The 2nd is the variable we want 
-# to work with. It must be one of the variables in the fitted model.
-# The function produces a table with estimated means, standard errors and 
+#The emmeans() function creates the least square means 
+# object from a fitted lm() object
+# The 1st argument is the fitted lm object; 
+# The 2nd is the variable we want 
+# to work with. It must be one of the 
+# variables in the fitted model.
+# The function produces a table with estimated 
+# means, standard errors and 
 # confidence intervals for each mean. 
-# To get something other than 95% confidence intervals, use 
-# summary( , level=0.90) to specify the coverage you want
-m6.emm <- emmeans(m6, 'group')
+# To get something other than 95% confidence 
+# intervals, use 
+# summary( , level=0.90) to specify 
+# the coverage you want
+(m6.emm <- emmeans(m6, 'group'))
 summary(m6.emm, level=0.90)
 
-# The pairs() function computes all pairwise differences.
-# By default, pairs() uses a Tukey adjustment for multiple comparisons.
+# The pairs() function computes all 
+# pairwise differences.
+# By default, pairs() uses a Tukey 
+# adjustment for multiple comparisons.
 # The adjust= argument changes that.
+# adjust can also be adjust = "bonferroni";
+# adjust = "scheffe"; or adjust = "none"; and
+# so on.
 pairs(m6.emm)
-# After adjusting for age, we failed to find significant difference in SBP 
+pairs(m6.emm, adjust = "bonferroni")
+# After adjusting for age, we failed 
+# to find significant difference in SBP 
 # among groups
 
 ####################
@@ -165,26 +226,45 @@ exercise
 attach(exercise)
 
 #Test interactions
-model <- lm(Energy~PreStretch+AnkleWeights+PreStretch*AnkleWeights, data=exercise)
+# Energy as the response
+model <- lm(Energy~PreStretch+AnkleWeights+
+              PreStretch*AnkleWeights, 
+            data=exercise)
 summary(model)
-Anova(lm(Energy~PreStretch+AnkleWeights, data=exercise), type=3)
-model1 <- lm(Speed~PreStretch+AnkleWeights+PreStretch*AnkleWeights, data=exercise)
+Anova(model, type=3)
+
+# Speed as the response
+model1 <- lm(Speed~PreStretch+AnkleWeights
+             +PreStretch*AnkleWeights, 
+             data=exercise)
 summary(model1)
 Anova(model1, type=3)
-model2 <- lm(Oxygen~PreStretch+AnkleWeights+PreStretch*AnkleWeights, data=exercise)
+
+# Oxygen as the response
+model2 <- lm(Oxygen~PreStretch+AnkleWeights
+             +PreStretch*AnkleWeights, 
+             data=exercise)
 summary(model2)
 Anova(model2, type=3)
 
 # Generate interaction plots
-interaction.plot(PreStretch, AnkleWeights, Energy, col=1:2)
-interaction.plot(PreStretch, AnkleWeights, Speed, col=1:2)
-interaction.plot(PreStretch, AnkleWeights, Oxygen, col=1:2)
+interaction.plot(PreStretch, AnkleWeights, 
+                 Energy, col=1:2)
+interaction.plot(PreStretch, AnkleWeights, 
+                 Speed, col=1:2)
+interaction.plot(PreStretch, AnkleWeights, 
+                 Oxygen, col=1:2)
 
-#If interaction is significant, need to stratify (by more of the two factors) 
+#If interaction is significant, need to 
+# stratify (by one of the two factors) 
+# Since the interaction term is not significant, 
+# this is just for demo.
 stretch <- exercise[which(PreStretch=='Stretch'),]
 nostretch <- exercise[which(PreStretch=='No stretch'),]
 summary(aov(Energy~AnkleWeights, data=stretch))
 summary(aov(Energy~AnkleWeights, data=nostretch))
+
+# The other two response variables
 summary(aov(Speed~AnkleWeights, data=stretch))
 summary(aov(Speed~AnkleWeights, data=nostretch))
 summary(aov(Oxygen~AnkleWeights, data=stretch))
@@ -195,7 +275,7 @@ summary(aov(Oxygen~AnkleWeights, data=nostretch))
 ## Additional Ex
 ####################
 
-#Exercise 1 (Data set from http://www.statlab.uni-heidelberg.de/data/ancova/cholesterol.story.html)
+#(Data set from http://www.statlab.uni-heidelberg.de/data/ancova/cholesterol.story.html)
 #The purpose of the study was to estimate the effect of the agricultural weed yarrow on 
 #the yield of white clover. It was anticipated that the clover yield would decrease as 
 #the density of the yarrow increased. 
