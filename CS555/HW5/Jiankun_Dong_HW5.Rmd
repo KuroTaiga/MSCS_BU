@@ -1,0 +1,79 @@
+---
+title: "HW5"
+author: "Jiankun (Bob) Dong CM3226"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(car)
+library(emmeans)
+```
+
+```{r }
+dataSet <- read.csv("./A05.csv")
+dataSet$group <- as.factor(dataSet$group)
+attach(dataSet)
+summary(dataSet)
+```
+1) Based on the summary of the data set, there are 15 students in each group.
+Here are the graph summary of the IQ vs student group and age vs student group.
+```{r}
+boxplot(iq~group,data = dataSet, main="IQ test by Student Group", xlab="Student Group", 
+        ylab="IQ Test Score")
+boxplot(age~group,data = dataSet, main="Age by Student Group", xlab="Student Group", 
+        ylab="Age")
+```
+2) \
+Step1: \
+$H_0 : \beta_phy = \beta_math = \beta_chem $ \
+$H_1 : \beta_i \neq \beta_j for some i and j$ \
+$\alpha = 0.05$ \
+Step2: \
+$F = \frac {MSB}{MSW}$ with k-1 = 2 and n-k = 42 degrees of freedom\
+Step3: \
+Decision rule: reject $H_0$ if F>`r qf(.95,2,42)` \
+Step4: \
+Compute F:
+```{r}
+summary(aov(iq~group,data = dataSet))
+```
+Step5: \
+Because 26.57>`r qf(.95,2,42)`, we have significant evidence that at $\alpha=0.05$ that there is a difference in IQ test score among Chemistry, Math and Physics students.
+```{r}
+m <- aov(iq~group, data = dataSet)
+TukeyHSD(m)
+```
+At $\alpha = 0.05$ level, we do not have enough evidence that the mean IQ score between Physics and Math students differs, but we have significant evidence that the mean IQ score between Physics - Chemistry and Math - Chemistry student differs.
+3) \
+```{r}
+dataSet$g0 <- ifelse(group == 'Chemistry student', 1, 0)
+dataSet$g1 <- ifelse(group=='Math student', 1, 0)
+dataSet$g2 <- ifelse(group=='Physics student', 1, 0)
+m1 <- lm(iq ~ g1+g2,data=dataSet)
+anova(m1)
+summary(m1)
+```
+With chemistry student as reference, math student group has p value of .087 while physics student has p value of 1.133*10^-8. This means that math student is not a group with significantly different mean.This agrees with the previous result that only one of physics and math group is significantly different.
+For the $\beta$ it means that the expected IQ test score would be 8.667 lower if it's a student from the math students group, and 12.133 lower if it's from the physics students group. \
+4) \
+```{r}
+m2<-lm(iq~group+age,data=dataSet)
+Anova(m2,type=3)
+```
+The ANCOVA test analysis differs from the previous analysis in that it takes the effect of age as the covariance out of the ANOVA analysis. It shows that if the different we see between group of students is or is not due to age difference.
+Yes we obtained different result: the difference in result we see in the group of students is due to age difference.
+```{r}
+(m2.emm <- emmeans(m2, 'group'))
+```
+When adjusted for the covariance age, the mean value of IQ test for chemistry students is 38.6, for math students is 40.5 and for physics students is 39.0.
+
+
+
+
+
+
+
+
+

@@ -163,6 +163,7 @@ library(lsmeans)
 
 options('contrasts')
 # contr.treatment is for non-ordered: eg. male vs female
+#mostly we treat it as undered
 #http://www.dummies.com/programming/r/how-to-set-the-contrasts-for-your-data-with-r/
 X <- factor(c('A','B','C'))
 contr.treatment(X)
@@ -186,6 +187,9 @@ contr.treatment(X)
 options(contrasts=c("contr.treatment", "contr.poly"))
 m6 <- lm(data$SBP~data$group+data$age,data=data)
 (m6.rg1 <- ref.grid(m6)) ##rgl: reference group level
+# the continuous var displayed is the mean. That's the value used when comparing categorical var
+# for this example, when comparing, says, Never smoker and Current heavy smoker, the age is taken into account
+# and fixed at 37.316
 
 #The emmeans() function creates the least square means 
 # object from a fitted lm() object
