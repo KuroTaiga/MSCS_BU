@@ -1,0 +1,112 @@
+---
+title: "HW5"
+author: "Jiankun (Bob) Dong CM3226"
+date: "`r Sys.Date()`"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+#install.packages("pROC")
+library(pROC)
+# install.packages("caret")
+library(caret)
+library(car)
+library(emmeans)
+library(aod)
+```
+
+Probelm 1 and 2:
+
+```{r }
+dataSet <- read.csv("./A06.csv")
+dataSet$temp_level <- as.numeric(dataSet$temp>=98.6)
+dataSet$sex <- as.factor(dataSet$sex)
+SexVTempLevel_T <- table(dataSet$temp_level,dataSet$sex)
+colnames(SexVTempLevel_T) <- c('Male','Female')
+SexVTempLevel_T
+```
+
+Problem 3: 1.\
+$H_0 : p_1 = p_2$\
+$H_1 : p_1 \neq p_2$\
+$\alpha = 0.05$\
+2. \
+z = $\frac{\hat{p_1}-\hat{p_2}} {\hat{p}*(1-\hat{p})*(\frac{1}{n_1}+\frac{1}{n_2})}$ \
+3. \
+Decision rule: reject $H_0$ if \|z\|$\geq 1.96$ \
+4. \
+
+```{r}
+prop.test(c(51,30),c(65,65),conf.level = 0.95, correct = TRUE)
+p1_hat <- 51/65
+p2_hat <- 30/65
+p_hat <- 81/130
+(z<-(p1_hat-p2_hat)/(p_hat*(1-p_hat)*(1/65+1/65)))
+```
+
+5.  Conclusion: reject $H_0$ since z is greater than 1.96. We reject the hypothesis that the proportion of people having high body temperature is the same across men and women.\
+
+Problem 4:\
+
+```{r}
+m <- glm(dataSet$temp_level ~ dataSet$sex, family=binomial)
+
+```
+
+1.  $H_0 : \beta_1 = 0$\
+    $H_1: \beta_1 \neq 0$\
+    $\alpha = 0.05$\
+2.  \
+    z = $\frac {\beta_1} {SE\_{\beta\_1}}$ \
+3.  \
+    Decision rule: reject $H_0$ if \|z\| $\geq1.96$
+4.  \
+
+```{r}
+summary(m)
+```
+
+z = 1.4469/0.3911 = `r 1.4469/0.3911` \> 1.96 5. Reject $H_0$ because z\>1.96. There is evidence of an association between sex and temperature level. The odds ratio for sex is `r exp(1.4469)` for change in sex. the associated 95% confidence interval is between `r exp(1.4469-1.96*0.3911)` and `r exp(1.4469+1.96*0.3911)`\
+Problem 5:\
+
+```{r}
+dataSet$male <- ifelse(dataSet$sex == 1, 1, 0)
+m2 <- glm(dataSet$temp_level ~ dataSet$male+dataSet$Heart.rate, 
+         family=binomial)
+summary(m2)
+
+wald.test(b=coef(m2), Sigma=vcov(m2), Terms = 2:3)
+```
+
+Odds ratio for sex: `r exp(-1.38919)`\
+Odds ratio for heart rate for 10 beat increase: `r exp(0.06337*10)`
+
+```{r}
+dataSet$prob_2 <- predict(m2, type=c("response"))
+par(mfrow = c(1,1))
+g2 <- roc(dataSet$temp_level ~ dataSet$prob_2)
+auc(g2)
+```
+
+Problem6:\
+The c statistic for the first model is:
+
+```{r}
+dataSet$prob_1 <- predict(m, type=c("response"))
+par(mfrow = c(1,1))
+g1 <- roc(dataSet$temp_level ~ dataSet$prob_1)
+auc(g1)
+```
+
+And that's smaller than the second model. Therefore the second model is the better one with c statistic of 0.7289
+
+```{r}
+plot(1-g2$specificities, g2$sensitivities, 
+     type="l", xlab="1-specificity", 
+     ylab="Sensitivity", main="ROC curve")
+abline(a=0, b=1)
+grid()
+```

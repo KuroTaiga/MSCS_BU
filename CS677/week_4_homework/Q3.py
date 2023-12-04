@@ -1,0 +1,1 @@
+# No code needed for this part, calculation was done and printed out in Q2
