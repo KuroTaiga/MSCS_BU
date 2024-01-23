@@ -10,8 +10,7 @@ import helper
 from sklearn import svm
 from sklearn.preprocessing import StandardScaler
 import warnings
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-warnings.filterwarnings("ignore", category=FutureWarning)
+warnings.filterwarnings("ignore")
 
 X_train, X_test, Y_train, Y_test = helper.constructDF("seeds_dataset.csv")
 # lienar kernal

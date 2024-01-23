@@ -12,6 +12,8 @@ from collections import Counter
 from sklearn.cluster import KMeans
 import matplotlib.pyplot as plt
 import random
+import warnings
+warnings.filterwarnings("ignore")
 
 print("Part 1")
 # R = 0: class L = 1 neg class L = 2 pos
@@ -93,9 +95,18 @@ cluster_label.append(value)
 print("Assign cluster 2 with class label",value)
 print("Centroid for cluster 2:",centroids[2])
 
+fig = plt.figure()
+for i in range (1,4):
+    labelText = 'centroid' + str(i) + '(class'+str(cluster_label[i-1])+')'
+    plt.scatter(centroids[i-1][fi_index], centroids[i-1][fk_index], color=colmap[i],
+                marker='x', s=100, label=labelText)
+plt.legend(fancybox=True,framealpha=0.5)
+plt.xlabel(fi)
+plt.ylabel(fk)
+plt.show()
 
 print("Part 4")
-## math. dist() caculate the Euclidean distance between 2 points
+## np.linalg.norm() caculate the Euclidean distance between 2 points
 distance_Class = []
 for i in range(0,len(X)):    
     dataPoint = X[i]

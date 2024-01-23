@@ -13,6 +13,8 @@ from sklearn.naive_bayes import GaussianNB
 
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix
+import warnings
+warnings.filterwarnings("ignore")
 
 X_train, X_test, Y_train, Y_test = helper.constructDF("seeds_dataset.csv")
 # Naive Bayesian
