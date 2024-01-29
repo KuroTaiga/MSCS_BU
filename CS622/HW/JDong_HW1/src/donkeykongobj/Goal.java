@@ -1,8 +1,8 @@
 package donkeykongobj;
+// this can be Peaches
+public class Goal extends GameObj{
 
-public class Tools extends GameObj{
-	// health is how many times tools can be used
-	public Tools(int x, int y, int health) {
+	public Goal(int x, int y, int health) {
 		super(x, y, health);
 	}
 
@@ -12,18 +12,15 @@ public class Tools extends GameObj{
 
 	@Override
 	public void kill() {
+		
 	}
 
 	@Override
 	public void annouceSelf() {
-		System.out.println("This is a tool");
 	}
 
 	@Override
 	public void interact(GameObj obj) {
-		//TODO implement how tool interact with obj
 	}
-	
-	
 
 }

@@ -7,20 +7,25 @@ class Mario extends GameObj{
 	private int speed;
 	private int size;
 	private boolean hasWeapon;
+	//Mario probably have different levels of powered up states
+	private int marioPowerState;
 	
 	public Mario(int x, int y, int health, int speed, int size) {
 		super(x, y,health);
 		this.speed = speed;
 		this.size = size;
 		this.hasWeapon = false;
+		this.marioPowerState = 0;
 	}
 	
 	//setters and getters for Mario's private variables
 	public int getSpeed() {return this.speed;}
 	public int getSize() {return this.size;}
+	public int getPowerState() {return this.marioPowerState;}
 	public boolean getWeaponState() {return this.hasWeapon;}
 	public void setSpeed(int newSpeed) {this.speed = newSpeed;}
 	public void setSize(int newSize) {this.size = newSize;}
+	public void setPowerState(int newState) {this.marioPowerState = newState;}
 	public void setWeaponState(boolean newWeapon) {this.hasWeapon = newWeapon;}
 	
 	public void jump() {
