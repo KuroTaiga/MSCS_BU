@@ -6,7 +6,7 @@
 ** Use VBoxManage or the VirtualBox Manager GUI to make changes.
 -->
 <VirtualBox xmlns="http://www.virtualbox.org/" version="1.19-windows">
-  <Machine uuid="{849d4402-4470-48a4-8257-83444fba6e4e}" name="CS575_JDong" OSType="Ubuntu_64" snapshotFolder="Snapshots" lastStateChange="2024-01-30T23:39:45Z">
+  <Machine uuid="{849d4402-4470-48a4-8257-83444fba6e4e}" name="CS575_JDong" OSType="Ubuntu_64" snapshotFolder="Snapshots" lastStateChange="2024-01-31T23:37:54Z">
     <MediaRegistry>
       <HardDisks>
         <HardDisk uuid="{15cdb60f-c20b-4cf8-b289-f8d50cdb941f}" location="CS575_JDong.vdi" format="VDI" type="Normal"/>
@@ -70,18 +70,11 @@
         <GuestProperty name="/VirtualBox/GuestInfo/Net/0/V4/IP" value="10.0.2.15" timestamp="1706657734581639600" flags=""/>
         <GuestProperty name="/VirtualBox/GuestInfo/Net/0/V4/Netmask" value="255.255.255.0" timestamp="1706657734583590400" flags=""/>
         <GuestProperty name="/VirtualBox/GuestInfo/Net/Count" value="1" timestamp="1706657804693237900" flags=""/>
-        <GuestProperty name="/VirtualBox/GuestInfo/OS/LoggedInUsers" value="1" timestamp="1706657789670539400" flags="TRANSIENT, TRANSRESET"/>
-        <GuestProperty name="/VirtualBox/GuestInfo/OS/LoggedInUsersList" value="jdong" timestamp="1706657789669038900" flags="TRANSIENT, TRANSRESET"/>
-        <GuestProperty name="/VirtualBox/GuestInfo/OS/NoLoggedInUsers" value="false" timestamp="1706657789671503600" flags="TRANSIENT, TRANSRESET"/>
         <GuestProperty name="/VirtualBox/GuestInfo/OS/Product" value="Linux" timestamp="1706657734571263400" flags=""/>
         <GuestProperty name="/VirtualBox/GuestInfo/OS/Release" value="6.5.0-15-generic" timestamp="1706657734572386100" flags=""/>
         <GuestProperty name="/VirtualBox/GuestInfo/OS/ServicePack" value="" timestamp="1706657734572386102" flags=""/>
         <GuestProperty name="/VirtualBox/GuestInfo/OS/Version" value="#15~22.04.1-Ubuntu SMP PREEMPT_DYNAMIC Fri Jan 12 18:54:30 UTC 2" timestamp="1706657734572386101" flags=""/>
         <GuestProperty name="/VirtualBox/HostInfo/GUI/LanguageID" value="en_US" timestamp="1706658025392648500" flags="RDONLYGUEST"/>
-        <GuestProperty name="/VirtualBox/HostInfo/VBoxRev" value="161095" timestamp="1706657985955010802" flags="TRANSIENT, RDONLYGUEST"/>
-        <GuestProperty name="/VirtualBox/HostInfo/VBoxVer" value="7.0.14" timestamp="1706657985955010800" flags="TRANSIENT, RDONLYGUEST"/>
-        <GuestProperty name="/VirtualBox/HostInfo/VBoxVerExt" value="7.0.14" timestamp="1706657985955010801" flags="TRANSIENT, RDONLYGUEST"/>
-        <GuestProperty name="/VirtualBox/VMInfo/ResetCounter" value="1" timestamp="1706657642590650500" flags="TRANSIENT, RDONLYGUEST"/>
       </GuestProperties>
       <StorageControllers>
         <StorageController name="IDE" type="PIIX4" PortCount="2" useHostIOCache="true" Bootable="true">

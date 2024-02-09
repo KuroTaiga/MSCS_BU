@@ -6,7 +6,7 @@
 ** Use VBoxManage or the VirtualBox Manager GUI to make changes.
 -->
 <VirtualBox xmlns="http://www.virtualbox.org/" version="1.19-windows">
-  <Machine uuid="{849d4402-4470-48a4-8257-83444fba6e4e}" name="CS575_JDong" OSType="Ubuntu_64" snapshotFolder="Snapshots" lastStateChange="2024-01-31T23:37:54Z">
+  <Machine uuid="{849d4402-4470-48a4-8257-83444fba6e4e}" name="CS575_JDong" OSType="Ubuntu_64" snapshotFolder="Snapshots" lastStateChange="2024-02-09T20:15:19Z">
     <MediaRegistry>
       <HardDisks>
         <HardDisk uuid="{15cdb60f-c20b-4cf8-b289-f8d50cdb941f}" location="CS575_JDong.vdi" format="VDI" type="Normal"/>
