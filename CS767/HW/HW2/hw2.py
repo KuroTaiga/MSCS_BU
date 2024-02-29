@@ -106,17 +106,17 @@ def fit_piecewise_poly(x,y, knots, degree = 3):
     # first to the one before last section
     for endIndex in knots:
         #prepare currX and reshape
-        currX = x[startIndexPtr:endIndex][:,np.newaxis]
+        # currX = x[startIndexPtr:endIndex][:,np.newaxis]
         currY = y[startIndexPtr:endIndex]
-        poly = PolynomialFeatures(degree=degree)
-        polyX = poly.fit_transform(currX)
-        model = LinearRegression().fit(polyX,currY)
-        modelList.append(model)
-        predictions[startIndexPtr:endIndex] = model.predict(polyX)
-        # currX = x[startIndexPtr:endIndex]
-        # model = polyfit(currX,currY,deg=degree)
+        # poly = PolynomialFeatures(degree=degree)
+        # polyX = poly.fit_transform(currX)
+        # model = LinearRegression().fit(polyX,currY)
         # modelList.append(model)
-        # predictions[startIndexPtr:endIndex] = polyval(model,currX)
+        # predictions[startIndexPtr:endIndex] = model.predict(polyX)
+        currX = x[startIndexPtr:endIndex]
+        model = polyfit(currX,currY,deg=degree)
+        modelList.append(model)
+        predictions[startIndexPtr:endIndex] = polyval(model,currX)
 
         startIndexPtr = endIndex
     # last section
@@ -174,8 +174,8 @@ if __name__ == "__main__":
     execution_time_linear = time.time() - start_time
 
     plt.figure(figsize=(10, 6))
-    plt.scatter(x, distribution[sorted_indices], alpha=0.3, label='Data')
-    plt.scatter(x, predictions, color='red', label='Piecewise Linear Regression')
+    plt.scatter(x, distribution[sorted_indices], alpha=0.3, label='Data',s=2)
+    plt.scatter(x, predictions, color='red', label='Piecewise Linear Regression',s=2)
     plt.hlines(yknots, xmin=0, xmax=1500, linestyle='dashed', colors='k', label='Knots_Y')
     plt.vlines(xknots,ymin=min(predictions),ymax=max(predictions), linestyle='dashed', colors='k', label='Knots_X')
     plt.title('Piecewise Linear Regression with Splines and Knots')
@@ -195,8 +195,8 @@ if __name__ == "__main__":
     execution_time_piecewise_poly = time.time() - start_time
 
     plt.figure(figsize=(10, 6))
-    plt.scatter(x, distribution[sorted_indices], alpha=0.3, label='Data')
-    plt.scatter(x, predictions_piecewise_poly, color='red', label='Piecewise Poly Regression')
+    plt.scatter(x, distribution[sorted_indices], alpha=0.3, label='Data', s=2)
+    plt.scatter(x, predictions_piecewise_poly, color='red', label='Piecewise Poly Regression', s=2)
     plt.hlines(yknots, xmin=0, xmax=1500, linestyle='dashed', colors='k', label='Knots_Y')
     plt.vlines(xknots,ymin=min(predictions),ymax=max(predictions), linestyle='dashed', colors='k', label='Knots_X')
     plt.title('Piecewise Poly Regression with Splines and Knots')
@@ -223,7 +223,7 @@ if __name__ == "__main__":
 
     # Plot the result
     plt.figure(figsize=(10, 6))
-    plt.scatter(x, distribution[sorted_indices], alpha=0.3, label='Data')
+    plt.scatter(x, distribution[sorted_indices], alpha=0.3, label='Data',s=1)
     plt.plot(x, predictions_single_poly, color='red', label='Single Polynomial Regression')
     plt.title('Single Polynomial Regression')
     plt.xlabel('Value')

@@ -4,7 +4,7 @@ import math
 import functools 
 
 cache = functools.lru_cache(10**6)
-
+infinity = math.inf
 ##########################################
 
 class Game:
@@ -87,7 +87,7 @@ def alphabeta_search(game, state):
     This version searches all the way to the leaves."""
 
     player = state.to_move
-
+    print(player)
     def max_value(state, alpha, beta):
         if game.is_terminal(state):
             return game.utility(state, player), None
@@ -128,3 +128,77 @@ def player(search_algorithm):
     return lambda game, state: search_algorithm(game, state)[1]
 
 ##########################################
+
+def minimax_search_tt(game, state):
+    """Search game to determine best move; return (value, move) pair."""
+
+    player = state.to_move
+
+    @cache
+    def max_value(state):
+        if game.is_terminal(state):
+            return game.utility(state, player), None
+        v, move = -infinity, None
+        for a in game.actions(state):
+            v2, _ = min_value(game.result(state, a))
+            if v2 > v:
+                v, move = v2, a
+        return v, move
+
+    @cache
+    def min_value(state):
+        if game.is_terminal(state):
+            return game.utility(state, player), None
+        v, move = +infinity, None
+        for a in game.actions(state):
+            v2, _ = max_value(game.result(state, a))
+            if v2 < v:
+                v, move = v2, a
+        return v, move
+
+    return max_value(state)
+
+def cache1(function):
+    "Like lru_cache(None), but only considers the first argument of function."
+    cache = {}
+    def wrapped(x, *args):
+        if x not in cache:
+            cache[x] = function(x, *args)
+        return cache[x]
+    return wrapped
+
+def alphabeta_search_tt(game, state):
+    """Search game to determine best action; use alpha-beta pruning.
+    This version searches all the way to the leaves."""
+
+    player = state.to_move
+
+    @cache1
+    def max_value(state, alpha, beta):
+        if game.is_terminal(state):
+            return game.utility(state, player), None
+        v, move = -infinity, None
+        for a in game.actions(state):
+            v2, _ = min_value(game.result(state, a), alpha, beta)
+            if v2 > v:
+                v, move = v2, a
+                alpha = max(alpha, v)
+            if v >= beta:
+                return v, move
+        return v, move
+
+    @cache1
+    def min_value(state, alpha, beta):
+        if game.is_terminal(state):
+            return game.utility(state, player), None
+        v, move = +infinity, None
+        for a in game.actions(state):
+            v2, _ = max_value(game.result(state, a), alpha, beta)
+            if v2 < v:
+                v, move = v2, a
+                beta = min(beta, v)
+            if v <= alpha:
+                return v, move
+        return v, move
+
+    return max_value(state, -infinity, +infinity)

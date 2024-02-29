@@ -1,0 +1,1 @@
+savedcmd_/home/jdong/CS575/HW3/hello.ko := ld -r -m elf_x86_64 -z noexecstack --build-id=sha1  -T scripts/module.lds -o /home/jdong/CS575/HW3/hello.ko /home/jdong/CS575/HW3/hello.o /home/jdong/CS575/HW3/hello.mod.o;  make -f ./arch/x86/Makefile.postlink /home/jdong/CS575/HW3/hello.ko
