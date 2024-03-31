@@ -71,10 +71,9 @@ class QGame(Game):
         """Old implementation of how pieces"""
         # self.pieces[player][piece] -= 1
         # win is true either we got all pieces in or next player has no possible actions
+        # this len() part is kept separate from the four_pieces function because it's a separate win condition
         win = four_pieces(state, player, square, self.k) or len(self.actions(state))==0
-        # print(win)
         state.utility = (0 if not win else +1 if player == 'X' else -1)
-        
         return state
     
     def is_terminal(self, state):
@@ -95,7 +94,6 @@ class QBoard(defaultdict):
     off = ('#','#')
     shapes = ['A','B','C','D']
     pieces = {'X': {'A':2, 'B':2, 'C':2, 'D':2}, 'O': {'A':2, 'B':2, 'C':2, 'D':2}}
-    
     # the board should be tracking the number of ieces avaiable to each player
     # not the game class
     def __init__(self, width = 4, height = 4,to_move = None, **kwds):
@@ -155,27 +153,28 @@ def four_pieces(board, player, square, k):
     return in_row(*square) or in_any_region(*square)
 
 
+def alpha_player3(game, state):
+    return h_alphabeta_search(game,state,cutoff = cutoff_depth(3))[1]
+
+def alpha_player4(game, state):
+    return h_alphabeta_search(game,state,cutoff = cutoff_depth(4))[1]
+
+def alpha_player5(game, state):
+    return h_alphabeta_search(game,state,cutoff = cutoff_depth(5))[1]
 
 if __name__ == "__main__":
     qBoard = QBoard()
-    # qGame = QGame()
-    random.seed(7)
-    # playing with 2 random players
-    # print("2 Random players")
-    # print(play_game(qGame, 
-    #       dict(X=random_player, 
-    #            O=random_player), 
-    #       verbose=True).utility)
-    
-    #playing with random player + Minimax player
-    
+    qGame = QGame()
+    # playing with 2 random players 
+    random.seed(8916)
     print(play_game(QGame(), 
           dict(X=random_player, 
                O=random_player), 
           verbose=True).utility)
-    
-    print("Random vs Minimax")
-    print(play_game(QGame(),
-          {'X':random_player,
-           'O':player(h_alphabeta_search)},verbose=True).utility)
-    print("Done")
+    # random.seed(8916)
+    # print("Random vs Minimax")
+    # print(play_game(QGame(),
+    #       {'X':alpha_player4,
+    #        'O':alpha_player4},verbose=True).utility)
+    # print("Done")
+

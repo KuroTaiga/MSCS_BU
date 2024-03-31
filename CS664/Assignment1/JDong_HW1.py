@@ -26,6 +26,8 @@ class PancakeProblem(sh.Problem):
 
     def result(self, state, action):
         i  = int(action[5:])
+        print(action)
+        print(action[5])
         return state[:i][::-1] + state[i:]
 
     def h(self, node):
@@ -58,7 +60,7 @@ def initPancake(BUID,n):
 
 if __name__ == "__main__":
     N = 5
-    verbose = 2
+    verbose = 1
     startingState = initPancake(BUID,N) 
     #should yield [4, 3, 5, 2, 6, 7, 1] as initial sequence
     pancakeStack = PancakeProblem(startingState)
