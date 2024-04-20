@@ -43,18 +43,27 @@ def calculate_cosine_similarity(tensor_a, tensor_b):
 normalized_tensors = [np.mean(np.split(tensor, FRAME_COUNT, axis=0), axis=1) for tensor in tensors]
 
 # Calculate similarity scores
+execution_times = []
 start_time = time.time()
-
 similarity_1_2 = calculate_cosine_similarity(normalized_tensors[0], normalized_tensors[1])
-similarity_2_3 = calculate_cosine_similarity(normalized_tensors[1], normalized_tensors[2])
-similarity_1_3 = calculate_cosine_similarity(normalized_tensors[0], normalized_tensors[2])
-
 execution_time = time.time() - start_time
+execution_times.append(execution_time)
+
+start_time = time.time()
+similarity_2_3 = calculate_cosine_similarity(normalized_tensors[1], normalized_tensors[2])
+execution_time = time.time() - start_time
+execution_times.append(execution_time)
+
+start_time = time.time()
+similarity_1_3 = calculate_cosine_similarity(normalized_tensors[0], normalized_tensors[2])
+execution_time = time.time() - start_time
+execution_times.append(execution_time)
 
 print("Fast and slow ball:",similarity_1_2)
 print("Slow ball and rectangle:",similarity_2_3)
 print("Fast ball and rectangle",similarity_1_3)
-print("Runtime: ",execution_time)
+print("Runtime: ",execution_times)
+print("Ave time: ",np.average(execution_times))
 
 # Function to decompose a tensor using Tensor Train, return the tt_matrix
 def train_decompose(tensor, rank):
@@ -80,49 +89,90 @@ def tucker_decompose(tensor, rank):
 
 print("TensorTrain:")
 rank = [1, 3, 3, 1]
-start_time = time.time()
-tt_matrixs = [train_decompose(tensor, rank) for tensor in normalized_tensors]
-decomposition_time = time.time() - start_time
+tt_decomp_times = []
+tt_compare_times = []
+tt_total_times = []
+
+tt_matrixs = []
+for tensor in normalized_tensors:
+    start_time = time.time()
+    tt_matrixs.append(train_decompose(tensor,rank))
+    decomposition_time = time.time() - start_time
+    tt_decomp_times.append(decomposition_time)
+
 start_time = time.time()
 tt_similarity_1_2 = calculate_cosine_similarity(tt_matrixs[0],tt_matrixs[1])
+comparison_time = time.time() - start_time
+tt_compare_times.append(comparison_time)
+tt_total_times.append(comparison_time+tt_decomp_times[0]+tt_decomp_times[1])
+
+start_time = time.time()
 tt_similarity_2_3 = calculate_cosine_similarity(tt_matrixs[1],tt_matrixs[2])
+comparison_time = time.time() - start_time
+tt_compare_times.append(comparison_time)
+tt_total_times.append(comparison_time+tt_decomp_times[1]+tt_decomp_times[2])
+
+start_time = time.time()
 tt_similarity_1_3 = calculate_cosine_similarity(tt_matrixs[0],tt_matrixs[2])
 comparison_time = time.time() - start_time
-total_execution_time = decomposition_time+comparison_time
+tt_compare_times.append(comparison_time)
+tt_total_times.append(comparison_time+tt_decomp_times[0]+tt_decomp_times[2])
+
 
 print("Fast and slow ball:",tt_similarity_1_2)
 print("Slow ball and rectangle:",tt_similarity_2_3)
 print("Fast ball and rectangle",tt_similarity_1_3)
-print("Decomposition time:",decomposition_time)
-print("Comparison time:",comparison_time)
-print("Total Runtime: ",total_execution_time)
+print("Decomposition time:",tt_decomp_times)
+print("Ave decomp time:",np.average(tt_decomp_times))
+print("Comparison time:",tt_compare_times)
+print("Ave Compare time:",np.average(tt_compare_times))
+print("Total Runtime: ",tt_total_times)
+print("Ave total time:",np.average(tt_total_times))
+
 
 print("Tucker:")
 # Define a rank for the Tucker Decomposition based on the smallest mode size (to ensure decomposition is possible)
 rank = (20, 20, 20) 
 # Apply Tucker Decomposition to each tensor to get the core tensors
-start_decomposition_time = time.time()
 
-core_tensors = [tucker_decompose(tensor, rank) for tensor in normalized_tensors]
-
-decomposition_time = time.time() - start_decomposition_time
-
+core_tensors = []
+decomp_times = []
+compare_times = []
+total_times = []
+for tensor in normalized_tensors:
+    start_decomposition_time = time.time()
+    core_tensors.append(tucker_decompose(tensor, rank))
+    decomposition_time = time.time() - start_decomposition_time
+    decomp_times.append(decomposition_time)
 # Calculate similarity scores after decomposition
+
 start_comparison_time = time.time()
-
 decomposed_similarity_1_2 = calculate_cosine_similarity(core_tensors[0], core_tensors[1])
-decomposed_similarity_2_3 = calculate_cosine_similarity(core_tensors[1], core_tensors[2])
-decomposed_similarity_1_3 = calculate_cosine_similarity(core_tensors[0], core_tensors[2])
-
 comparison_time = time.time() - start_comparison_time
-total_execution_time = decomposition_time + comparison_time
+compare_times.append(comparison_time)
+total_times.append(comparison_time+decomp_times[0]+decomp_times[1])
+
+start_comparison_time = time.time()
+decomposed_similarity_2_3 = calculate_cosine_similarity(core_tensors[1], core_tensors[2])
+comparison_time = time.time() - start_comparison_time
+compare_times.append(comparison_time)
+total_times.append(comparison_time+decomp_times[1]+decomp_times[2])
+
+start_comparison_time = time.time()
+decomposed_similarity_1_3 = calculate_cosine_similarity(core_tensors[0], core_tensors[2])
+comparison_time = time.time() - start_comparison_time
+compare_times.append(comparison_time)
+total_times.append(comparison_time+decomp_times[0]+decomp_times[2])
 
 
 print("Fast and slow ball:",decomposed_similarity_1_2)
 print("Slow ball and rectangle:",decomposed_similarity_2_3)
 print("Fast ball and rectangle",decomposed_similarity_1_3)
-print("Decomposition time:",decomposition_time)
-print("Comparison time:",comparison_time)
-print("Total Runtime: ",total_execution_time)
+print("Decomposition times:",decomp_times)
+print("Average decomp time:",np.average(decomp_times))
+print("Comparison times:",compare_times)
+print("Average compare time:",np.average(compare_times))
+print("Total Runtimes: ",total_times)
+print("Average total time:",np.average(total_times))
 
 
