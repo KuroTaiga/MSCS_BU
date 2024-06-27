@@ -24,3 +24,10 @@ CS767/HW/HW1/JDong_HW1.zip
 CS622/HW/JDong_HW3/mergedIndiegogo.txt
 *.JPEG
 *.h5
+/android_projects/ObjectDetection/app/build
+android_projects/ObjectDetection/app/src/main/assets/best.torchscript.ptl
+android_projects/ObjectDetection/app/src/main/assets/best.torchscript
+android_projects/ObjectDetection/app/src/main/assets/old_best.torchscript
+/android_projects/ObjectDetection
+/android_projects/ObjectDetectionPreview
+/masterthesis/git_ignores
