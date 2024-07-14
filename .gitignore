@@ -34,3 +34,4 @@ android_projects/ObjectDetection/app/src/main/assets/old_best.torchscript
 .apk
 *.apk
 /android_projects/yolonetworks
+/masterthesis/GymMate
