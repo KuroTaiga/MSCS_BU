@@ -213,7 +213,7 @@ public class MainActivity extends AppCompatActivity implements Runnable {
                     if (resultCode == RESULT_OK && data != null) {
                         mBitmap = (Bitmap) data.getExtras().get("data");
                         Matrix matrix = new Matrix();
-                        //TODO removed rotate
+                        //TODO
                         matrix.postRotate(90.0f);
                         mBitmap = Bitmap.createBitmap(mBitmap, 0, 0, mBitmap.getWidth(), mBitmap.getHeight(), matrix, true);
                         mImageView.setImageBitmap(mBitmap);
@@ -232,7 +232,7 @@ public class MainActivity extends AppCompatActivity implements Runnable {
                                 String picturePath = cursor.getString(columnIndex);
                                 mBitmap = BitmapFactory.decodeFile(picturePath);
                                 Matrix matrix = new Matrix();
-                                //TODO: removed rotate
+                                //TODO
                                 matrix.postRotate(90.0f);
                                 mBitmap = Bitmap.createBitmap(mBitmap, 0, 0, mBitmap.getWidth(), mBitmap.getHeight(), matrix, true);
                                 mImageView.setImageBitmap(mBitmap);
@@ -261,11 +261,10 @@ public class MainActivity extends AppCompatActivity implements Runnable {
             outputTensor = outputTensorList[0];
         }
         final float[] outputs = outputTensor.getDataAsFloatArray();
-        Log.i("Tensor shape 0", Arrays.toString(outputTensor.shape()));
-        Log.i("Array shape", String.valueOf(outputs.length));
-        //Log.i("Tensor shape 1", Arrays.toString(outputTensorList[1].shape()));
-        //Log.i("Tensor shape 2", Arrays.toString(outputTensorList[2].shape()));
-        Log.i("output shape", String.valueOf(outputs.length));
+        //for debugging model output
+        //Log.i("Tensor shape 0", Arrays.toString(outputTensor.shape()));
+        //Log.i("Array shape", String.valueOf(outputs.length));
+        //Log.i("output shape", String.valueOf(outputs.length));
         final ArrayList<Result> results = PrePostProcessor.outputsToNMSPredictions(outputs, mImgScaleX, mImgScaleY, mIvScaleX, mIvScaleY, mStartX, mStartY);
         for (Result r : results) {
             Log.i("class int", String.valueOf(r.classIndex));

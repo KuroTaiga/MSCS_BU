@@ -6,11 +6,13 @@
 
 package org.pytorch.demo.objectdetection;
 
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -18,6 +20,7 @@ public class BaseModuleActivity extends AppCompatActivity {
     protected HandlerThread mBackgroundThread;
     protected Handler mBackgroundHandler;
     protected Handler mUIHandler;
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -42,6 +45,8 @@ public class BaseModuleActivity extends AppCompatActivity {
         stopBackgroundThread();
         super.onDestroy();
     }
+
+
 
     protected void stopBackgroundThread() {
       mBackgroundThread.quitSafely();

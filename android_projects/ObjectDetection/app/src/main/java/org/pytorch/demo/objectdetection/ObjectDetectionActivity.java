@@ -34,7 +34,7 @@ public class ObjectDetectionActivity extends AbstractCameraXActivity<ObjectDetec
 
     private Module mModule = null;
     private ResultView mResultView;
-    //private TextView mTextView;
+
 
     static class AnalysisResult {
         private final ArrayList<Result> mResults;
@@ -52,7 +52,8 @@ public class ObjectDetectionActivity extends AbstractCameraXActivity<ObjectDetec
     @Override
     protected TextureView getCameraPreviewTextureView() {
         mResultView = findViewById(R.id.resultView);
-        //mTextView = findViewById(R.id.ResultTextView);
+
+
         return ((ViewStub) findViewById(R.id.object_detection_texture_view_stub))
                 .inflate()
                 .findViewById(R.id.object_detection_texture_view);
@@ -103,6 +104,7 @@ public class ObjectDetectionActivity extends AbstractCameraXActivity<ObjectDetec
         }
         Bitmap bitmap = imgToBitmap(image.getImage());
         Matrix matrix = new Matrix();
+        //TODO
         matrix.postRotate(90.0f);
         bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
         Bitmap resizedBitmap = Bitmap.createScaledBitmap(bitmap, PrePostProcessor.mInputWidth, PrePostProcessor.mInputHeight, true);
@@ -118,9 +120,13 @@ public class ObjectDetectionActivity extends AbstractCameraXActivity<ObjectDetec
             outputTensor = outputTensorList[0];
         }
         final float[] outputs = outputTensor.getDataAsFloatArray();
+        Log.i("bitmap height", String.valueOf(bitmap.getHeight()));
+        Log.i("bitmap width", String.valueOf(bitmap.getWidth()));
 
         float imgScaleX = (float)bitmap.getWidth() / PrePostProcessor.mInputWidth;
         float imgScaleY = (float)bitmap.getHeight() / PrePostProcessor.mInputHeight;
+
+        Log.i("Orientation", String.valueOf(getWindowManager().getDefaultDisplay().getRotation()));
         float ivScaleX = (float)mResultView.getWidth() / bitmap.getWidth();
         float ivScaleY = (float)mResultView.getHeight() / bitmap.getHeight();
 

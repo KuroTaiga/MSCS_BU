@@ -8,13 +8,22 @@ package org.pytorch.demo.objectdetection;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
+import android.graphics.SurfaceTexture;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.util.DisplayMetrics;
+import android.util.Log;
+import android.util.Rational;
 import android.util.Size;
 import android.view.Display;
+import android.view.Surface;
 import android.view.TextureView;
+import android.view.WindowManager;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.annotation.WorkerThread;
@@ -72,16 +81,35 @@ public abstract class AbstractCameraXActivity<R> extends BaseModuleActivity {
 
     private void setupCameraX() {
         final TextureView textureView = getCameraPreviewTextureView();
-        final PreviewConfig previewConfig = new PreviewConfig.Builder().build();
+        //TODO: fix orientation
+//        textureView.setRotation(getWindowManager().getDefaultDisplay().getRotation());
+//        WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
+//        final DisplayMetrics displayMetrics = new DisplayMetrics();
+//        wm.getDefaultDisplay().getMetrics(displayMetrics);
+//        int height = displayMetrics.heightPixels;
+//        int width = displayMetrics.widthPixels;
+
+
+
+        final PreviewConfig previewConfig =
+                new PreviewConfig.Builder()
+                        .setTargetResolution(new Size(960, 1280))
+                        .setTargetRotation(getWindowManager().getDefaultDisplay().getRotation())
+                        //.setTargetAspectRatio(new Rational(1,1))
+                        .build();
         final Preview preview = new Preview(previewConfig);
-        preview.setOnPreviewOutputUpdateListener(output -> textureView.setSurfaceTexture(output.getSurfaceTexture()));
+        //preview.setOnPreviewOutputUpdateListener(output ->
+                //textureView.setSurfaceTexture(output.getSurfaceTexture()));
+        preview.setOnPreviewOutputUpdateListener(getSurfaceListener(textureView));
 
         final ImageAnalysisConfig imageAnalysisConfig =
             new ImageAnalysisConfig.Builder()
-                .setTargetResolution(new Size(640, 640)) //TODO: update the size so it doesn't stretches
-                .setCallbackHandler(mBackgroundHandler)
-                .setImageReaderMode(ImageAnalysis.ImageReaderMode.ACQUIRE_LATEST_IMAGE)
-                .build();
+                    .setTargetResolution(new Size(960, 1280))
+                    //.setTargetRotation(getWindowManager().getDefaultDisplay().getRotation())
+                    //.setTargetAspectRatio(new Rational(1,1))
+                    .setCallbackHandler(mBackgroundHandler)
+                    .setImageReaderMode(ImageAnalysis.ImageReaderMode.ACQUIRE_LATEST_IMAGE)
+                    .build();
         final ImageAnalysis imageAnalysis = new ImageAnalysis(imageAnalysisConfig);
         imageAnalysis.setAnalyzer((image, rotationDegrees) -> {
             if (SystemClock.elapsedRealtime() - mLastAnalysisResultTime < 500) {
@@ -95,7 +123,20 @@ public abstract class AbstractCameraXActivity<R> extends BaseModuleActivity {
             }
         });
 
-        CameraX.bindToLifecycle(this, preview, imageAnalysis);
+        CameraX.bindToLifecycle(this,preview, imageAnalysis);
+    }
+
+
+
+    private Preview.OnPreviewOutputUpdateListener getSurfaceListener(TextureView textureView) {
+
+        return output -> {
+
+            SurfaceTexture newTexture = output.getSurfaceTexture();
+            textureView.setSurfaceTexture(newTexture);
+
+
+        };
     }
 
     @WorkerThread

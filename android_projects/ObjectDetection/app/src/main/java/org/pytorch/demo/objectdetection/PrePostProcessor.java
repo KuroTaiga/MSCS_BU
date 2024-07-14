@@ -135,7 +135,6 @@ public class PrePostProcessor {
         for(int i=0;i<10;i++){
             Log.i("xywh,obj,classes4", Arrays.toString(Arrays.copyOfRange(outputs,i* mOutputColumn_v7,(i+1)* mOutputColumn_v7)));
         }
-        //TODO: Try apply softmax for each output
         int count = 0;
         for (int i = 0; i< mOutputRow_v7; i++) {
             float logObjScore = 1 / (1 + (float)Math.exp(-outputs[i* mOutputColumn_v7 +4]));
