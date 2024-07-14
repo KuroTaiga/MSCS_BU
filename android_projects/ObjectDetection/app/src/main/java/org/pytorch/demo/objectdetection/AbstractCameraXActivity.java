@@ -80,7 +80,6 @@ public abstract class AbstractCameraXActivity<R> extends BaseModuleActivity {
             new ImageAnalysisConfig.Builder()
                 .setTargetResolution(new Size(640, 640)) //TODO: update the size so it doesn't stretches
                 .setCallbackHandler(mBackgroundHandler)
-                .setTargetRotation(Display.R)
                 .setImageReaderMode(ImageAnalysis.ImageReaderMode.ACQUIRE_LATEST_IMAGE)
                 .build();
         final ImageAnalysis imageAnalysis = new ImageAnalysis(imageAnalysisConfig);
