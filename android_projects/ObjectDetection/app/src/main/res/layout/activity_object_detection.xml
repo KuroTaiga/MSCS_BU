@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/black"
+    android:orientation="vertical"
     android:fitsSystemWindows="true">
 
     <ViewStub
@@ -24,6 +25,11 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/ResultTextView"/>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

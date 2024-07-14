@@ -45,7 +45,9 @@ public class ResultView extends View {
         super.onDraw(canvas);
 
         if (mResults == null) return;
+        int textOffSet = 0;
         for (Result result : mResults) {
+
             mPaintRectangle.setStrokeWidth(5);
             mPaintRectangle.setStyle(Paint.Style.STROKE);
             canvas.drawRect(result.rect, mPaintRectangle);
@@ -60,7 +62,10 @@ public class ResultView extends View {
             mPaintText.setStrokeWidth(0);
             mPaintText.setStyle(Paint.Style.FILL);
             mPaintText.setTextSize(32);
-            canvas.drawText(String.format("%s %.2f", PrePostProcessor.mClasses[result.classIndex], result.score), result.rect.left + TEXT_X, result.rect.top + TEXT_Y, mPaintText);
+                canvas.drawText(String.format("%s %.2f", PrePostProcessor.mClasses[result.classIndex], result.score), result.rect.left + TEXT_X, result.rect.top + TEXT_Y, mPaintText);
+            //TODO: result score currently showing over 1.0 for yolov7
+            //canvas.drawText(String.format("%s %.2f", PrePostProcessor.mClasses[result.classIndex], result.score), 100,100+TEXT_HEIGHT*textOffSet, mPaintText);
+            textOffSet+=1;
         }
     }
 

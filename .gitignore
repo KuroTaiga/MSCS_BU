@@ -29,3 +29,8 @@ android_projects/ObjectDetection/app/src/main/assets/best.torchscript.ptl
 android_projects/ObjectDetection/app/src/main/assets/best.torchscript
 android_projects/ObjectDetection/app/src/main/assets/old_best.torchscript
 /masterthesis/git_ignores
+/masterthesis/yolov5
+/masterthesis/yolov7
+.apk
+*.apk
+/android_projects/yolonetworks

@@ -1,5 +1,7 @@
 package org.pytorch.demo.objectdetection;
 
+import static org.pytorch.demo.objectdetection.MainActivity.MODEL_NAME;
+
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
@@ -10,6 +12,7 @@ import android.media.Image;
 import android.util.Log;
 import android.view.TextureView;
 import android.view.ViewStub;
+import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
@@ -25,10 +28,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class ObjectDetectionActivity extends AbstractCameraXActivity<ObjectDetectionActivity.AnalysisResult> {
+
     private Module mModule = null;
     private ResultView mResultView;
+    //private TextView mTextView;
 
     static class AnalysisResult {
         private final ArrayList<Result> mResults;
@@ -46,6 +52,7 @@ public class ObjectDetectionActivity extends AbstractCameraXActivity<ObjectDetec
     @Override
     protected TextureView getCameraPreviewTextureView() {
         mResultView = findViewById(R.id.resultView);
+        //mTextView = findViewById(R.id.ResultTextView);
         return ((ViewStub) findViewById(R.id.object_detection_texture_view_stub))
                 .inflate()
                 .findViewById(R.id.object_detection_texture_view);
@@ -58,6 +65,8 @@ public class ObjectDetectionActivity extends AbstractCameraXActivity<ObjectDetec
     }
 
     private Bitmap imgToBitmap(Image image) {
+        Log.i("image height", String.valueOf(image.getHeight()));
+        Log.i("image width", String.valueOf(image.getWidth()));
         Image.Plane[] planes = image.getPlanes();
         ByteBuffer yBuffer = planes[0].getBuffer();
         ByteBuffer uBuffer = planes[1].getBuffer();
@@ -86,7 +95,7 @@ public class ObjectDetectionActivity extends AbstractCameraXActivity<ObjectDetec
     protected AnalysisResult analyzeImage(ImageProxy image, int rotationDegrees) {
         try {
             if (mModule == null) {
-                mModule = LiteModuleLoader.load(MainActivity.assetFilePath(getApplicationContext(), "best.torchscript"));
+                mModule = LiteModuleLoader.load(MainActivity.assetFilePath(getApplicationContext(), MODEL_NAME));
             }
         } catch (IOException e) {
             Log.e("Object Detection", "Error reading assets", e);
@@ -99,8 +108,15 @@ public class ObjectDetectionActivity extends AbstractCameraXActivity<ObjectDetec
         Bitmap resizedBitmap = Bitmap.createScaledBitmap(bitmap, PrePostProcessor.mInputWidth, PrePostProcessor.mInputHeight, true);
 
         final Tensor inputTensor = TensorImageUtils.bitmapToFloat32Tensor(resizedBitmap, PrePostProcessor.NO_MEAN_RGB, PrePostProcessor.NO_STD_RGB);
-        IValue[] outputTuple = mModule.forward(IValue.from(inputTensor)).toTuple();
-        final Tensor outputTensor = outputTuple[0].toTensor();
+        Tensor outputTensor = null;
+        if(MODEL_NAME == "old_best.torchscript"|| MODEL_NAME == "NoLastLayer.torchscript.ptl") {
+            IValue[] outputTuple = mModule.forward(IValue.from(inputTensor)).toTuple();
+            outputTensor = outputTuple[0].toTensor();
+        }
+        else {
+            Tensor[] outputTensorList = mModule.forward(IValue.from(inputTensor)).toTensorList();
+            outputTensor = outputTensorList[0];
+        }
         final float[] outputs = outputTensor.getDataAsFloatArray();
 
         float imgScaleX = (float)bitmap.getWidth() / PrePostProcessor.mInputWidth;

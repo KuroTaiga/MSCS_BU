@@ -1,5 +1,4 @@
 ball
-band
 barbell
 dumbbell
 kettlebell

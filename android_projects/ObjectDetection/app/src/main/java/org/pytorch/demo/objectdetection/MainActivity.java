@@ -43,11 +43,18 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements Runnable {
     private int mImageIndex = 0;
     private String[] mTestImages = {"test1.png", "test2.jpg", "test3.png"};
+
+    //public static final String MODEL_NAME = "yolov7.torchscript";
+    //public static final String MODEL_NAME = "yolov7-tiny.torchscript.ptl";
+    public static final String MODEL_NAME = "NoLastLayer.torchscript.ptl";
+    //yolov5
+    //public static final String MODEL_NAME = "old_best.torchscript";
 
     private ImageView mImageView;
     private ResultView mResultView;
@@ -92,6 +99,7 @@ public class MainActivity extends AppCompatActivity implements Runnable {
 
         try {
             mBitmap = BitmapFactory.decodeStream(getAssets().open(mTestImages[mImageIndex]));
+
         } catch (IOException e) {
             Log.e("Object Detection", "Error reading assets", e);
             finish();
@@ -181,7 +189,7 @@ public class MainActivity extends AppCompatActivity implements Runnable {
         });
 
         try {
-            mModule = LiteModuleLoader.load(MainActivity.assetFilePath(getApplicationContext(), "best.torchscript"));
+            mModule = LiteModuleLoader.load(MainActivity.assetFilePath(getApplicationContext(), MODEL_NAME));
             BufferedReader br = new BufferedReader(new InputStreamReader(getAssets().open("classes.txt")));
             String line;
             List<String> classes = new ArrayList<>();
@@ -205,6 +213,7 @@ public class MainActivity extends AppCompatActivity implements Runnable {
                     if (resultCode == RESULT_OK && data != null) {
                         mBitmap = (Bitmap) data.getExtras().get("data");
                         Matrix matrix = new Matrix();
+                        //TODO removed rotate
                         matrix.postRotate(90.0f);
                         mBitmap = Bitmap.createBitmap(mBitmap, 0, 0, mBitmap.getWidth(), mBitmap.getHeight(), matrix, true);
                         mImageView.setImageBitmap(mBitmap);
@@ -223,6 +232,7 @@ public class MainActivity extends AppCompatActivity implements Runnable {
                                 String picturePath = cursor.getString(columnIndex);
                                 mBitmap = BitmapFactory.decodeFile(picturePath);
                                 Matrix matrix = new Matrix();
+                                //TODO: removed rotate
                                 matrix.postRotate(90.0f);
                                 mBitmap = Bitmap.createBitmap(mBitmap, 0, 0, mBitmap.getWidth(), mBitmap.getHeight(), matrix, true);
                                 mImageView.setImageBitmap(mBitmap);
@@ -239,11 +249,27 @@ public class MainActivity extends AppCompatActivity implements Runnable {
     public void run() {
         Bitmap resizedBitmap = Bitmap.createScaledBitmap(mBitmap, PrePostProcessor.mInputWidth, PrePostProcessor.mInputHeight, true);
         final Tensor inputTensor = TensorImageUtils.bitmapToFloat32Tensor(resizedBitmap, PrePostProcessor.NO_MEAN_RGB, PrePostProcessor.NO_STD_RGB);
-        IValue[] outputTuple = mModule.forward(IValue.from(inputTensor)).toTuple();
-        final Tensor outputTensor = outputTuple[0].toTensor();
+        Tensor outputTensor = null;
+        Tensor[] outputTensorList;
+        if (MODEL_NAME == "old_best.torchscript" || MODEL_NAME == "NoLastLayer.torchscript.ptl") {
+            IValue[] outputTuple = mModule.forward(IValue.from(inputTensor)).toTuple();
+            outputTensor = outputTuple[0].toTensor();
+        } else {
+            outputTensorList = mModule.forward(IValue.from(inputTensor)).toTensorList();
+            Log.i("list length", String.valueOf(outputTensorList.length));
+            //most detailed tensor
+            outputTensor = outputTensorList[0];
+        }
         final float[] outputs = outputTensor.getDataAsFloatArray();
-        final ArrayList<Result> results =  PrePostProcessor.outputsToNMSPredictions(outputs, mImgScaleX, mImgScaleY, mIvScaleX, mIvScaleY, mStartX, mStartY);
-
+        Log.i("Tensor shape 0", Arrays.toString(outputTensor.shape()));
+        Log.i("Array shape", String.valueOf(outputs.length));
+        //Log.i("Tensor shape 1", Arrays.toString(outputTensorList[1].shape()));
+        //Log.i("Tensor shape 2", Arrays.toString(outputTensorList[2].shape()));
+        Log.i("output shape", String.valueOf(outputs.length));
+        final ArrayList<Result> results = PrePostProcessor.outputsToNMSPredictions(outputs, mImgScaleX, mImgScaleY, mIvScaleX, mIvScaleY, mStartX, mStartY);
+        for (Result r : results) {
+            Log.i("class int", String.valueOf(r.classIndex));
+        }
         runOnUiThread(() -> {
             mButtonDetect.setEnabled(true);
             mButtonDetect.setText(getString(R.string.detect));

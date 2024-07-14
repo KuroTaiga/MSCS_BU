@@ -11,6 +11,7 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Size;
+import android.view.Display;
 import android.view.TextureView;
 import android.widget.Toast;
 
@@ -77,8 +78,9 @@ public abstract class AbstractCameraXActivity<R> extends BaseModuleActivity {
 
         final ImageAnalysisConfig imageAnalysisConfig =
             new ImageAnalysisConfig.Builder()
-                .setTargetResolution(new Size(480, 640))
+                .setTargetResolution(new Size(640, 640)) //TODO: update the size so it doesn't stretches
                 .setCallbackHandler(mBackgroundHandler)
+                .setTargetRotation(Display.R)
                 .setImageReaderMode(ImageAnalysis.ImageReaderMode.ACQUIRE_LATEST_IMAGE)
                 .build();
         final ImageAnalysis imageAnalysis = new ImageAnalysis(imageAnalysisConfig);
