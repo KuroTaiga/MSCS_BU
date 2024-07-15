@@ -2,7 +2,6 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 30
-    buildToolsVersion "30.0.2"
 
     defaultConfig {
         applicationId "org.pytorch.demo.objectdetection"
@@ -23,6 +22,7 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+    namespace 'org.pytorch.demo.objectdetection'
 }
 
 dependencies {
@@ -41,5 +41,6 @@ dependencies {
     implementation 'org.pytorch:pytorch_android_lite:2.1.0'
     implementation 'org.pytorch:pytorch_android_torchvision_lite:2.1.0'
 
+    implementation 'com.google.mediapipe:tasks-vision-image-generator:latest.release'
 
 }
