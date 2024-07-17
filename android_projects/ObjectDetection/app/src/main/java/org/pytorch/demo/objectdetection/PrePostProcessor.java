@@ -182,8 +182,12 @@ public class PrePostProcessor {
 
     static ArrayList<Result> outputsToNMSPredictions_v5(float[] outputs, float imgScaleX, float imgScaleY, float ivScaleX, float ivScaleY, float startX, float startY) {
         ArrayList<Result> results = new ArrayList<>();
+        //Debug
+        int count = 0;
         for (int i = 0; i< mOutputRow; i++) {
             if (outputs[i* mOutputColumn +4] > mThreshold) {
+                //Debug
+                count ++;
                 float x = outputs[i* mOutputColumn];
                 float y = outputs[i* mOutputColumn +1];
                 float w = outputs[i* mOutputColumn +2];
@@ -208,6 +212,10 @@ public class PrePostProcessor {
                 results.add(result);
             }
         }
+        //Debug
+        Log.i("Detection debug","Found "+String.valueOf(count));
         return nonMaxSuppression(results, mNmsLimit, mThreshold);
     }
+
+
 }

@@ -81,15 +81,6 @@ public abstract class AbstractCameraXActivity<R> extends BaseModuleActivity {
 
     private void setupCameraX() {
         final TextureView textureView = getCameraPreviewTextureView();
-        //TODO: fix orientation
-//        textureView.setRotation(getWindowManager().getDefaultDisplay().getRotation());
-//        WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
-//        final DisplayMetrics displayMetrics = new DisplayMetrics();
-//        wm.getDefaultDisplay().getMetrics(displayMetrics);
-//        int height = displayMetrics.heightPixels;
-//        int width = displayMetrics.widthPixels;
-
-
 
         final PreviewConfig previewConfig =
                 new PreviewConfig.Builder()
