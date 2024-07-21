@@ -18,6 +18,8 @@ class ResultView : View {
     private var mPaintRectangle: Paint? = null
     private var mPaintText: Paint? = null
     private var mResults: ArrayList<Result>? = null
+    var mDrawBoxes: Boolean = true
+
 
     constructor(context: Context?) : super(context)
 
@@ -33,39 +35,45 @@ class ResultView : View {
         if (mResults == null) return
         var textOffSet = 0
         for (result in mResults!!) {
-            mPaintRectangle!!.strokeWidth = 5f
-            mPaintRectangle!!.style = Paint.Style.STROKE
-            canvas.drawRect(result.rect, mPaintRectangle!!)
+            if (mDrawBoxes) draw_result_boxes(canvas, result)
 
-            val mPath = Path()
-            val mRectF = RectF(
-                result.rect.left.toFloat(),
-                result.rect.top.toFloat(),
-                (result.rect.left + TEXT_WIDTH).toFloat(),
-                (result.rect.top + TEXT_HEIGHT).toFloat()
-            )
-            mPath.addRect(mRectF, Path.Direction.CW)
-            mPaintText!!.color = Color.MAGENTA
-            canvas.drawPath(mPath, mPaintText!!)
-
-            mPaintText!!.color = Color.WHITE
-            mPaintText!!.strokeWidth = 0f
-            mPaintText!!.style = Paint.Style.FILL
-            mPaintText!!.textSize = 32f
-            canvas.drawText(
-                String.format(
-                    "%s %.2f",
-                    PrePostProcessor.mClasses[result.classIndex],
-                    result.score
-                ),
-                (result.rect.left + TEXT_X).toFloat(),
-                (result.rect.top + TEXT_Y).toFloat(),
-                mPaintText!!
-            )
-            //result score currently showing over 1.0 for yolov7
-            //canvas.drawText(String.format("%s %.2f", PrePostProcessor.mClasses[result.classIndex], result.score), 100,100+TEXT_HEIGHT*textOffSet, mPaintText);
             textOffSet += 1
         }
+    }
+
+    private fun draw_result_boxes(
+        canvas: Canvas,
+        result: Result
+    ) {
+        mPaintRectangle!!.strokeWidth = 5f
+        mPaintRectangle!!.style = Paint.Style.STROKE
+        canvas.drawRect(result.rect, mPaintRectangle!!)
+
+        val mPath = Path()
+        val mRectF = RectF(
+            result.rect.left.toFloat(),
+            result.rect.top.toFloat(),
+            (result.rect.left + TEXT_WIDTH).toFloat(),
+            (result.rect.top + TEXT_HEIGHT).toFloat()
+        )
+        mPath.addRect(mRectF, Path.Direction.CW)
+        mPaintText!!.color = Color.MAGENTA
+        canvas.drawPath(mPath, mPaintText!!)
+
+        mPaintText!!.color = Color.WHITE
+        mPaintText!!.strokeWidth = 0f
+        mPaintText!!.style = Paint.Style.FILL
+        mPaintText!!.textSize = 32f
+        canvas.drawText(
+            String.format(
+                "%s %.2f",
+                PrePostProcessor.mClasses[result.classIndex],
+                result.score
+            ),
+            (result.rect.left + TEXT_X).toFloat(),
+            (result.rect.top + TEXT_Y).toFloat(),
+            mPaintText!!
+        )
     }
 
     fun setResults(results: ArrayList<Result>?) {

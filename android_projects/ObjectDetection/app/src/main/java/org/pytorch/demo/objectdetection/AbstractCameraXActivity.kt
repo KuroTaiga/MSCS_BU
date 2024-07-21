@@ -27,8 +27,8 @@ import androidx.core.app.ActivityCompat
 abstract class AbstractCameraXActivity<R> : BaseModuleActivity() {
     private var mLastAnalysisResultTime: Long = 0
 
+    protected abstract var mResultQueue : ResultsQueueSet
     protected abstract val contentViewLayoutId: Int
-
     protected abstract val cameraPreviewTextureView: TextureView
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -107,8 +107,10 @@ abstract class AbstractCameraXActivity<R> : BaseModuleActivity() {
                 //}
                 val result = analyzeImage(image, rotationDegrees)
                 if (result != null) {
+
+                    val mElapsedTime = SystemClock.elapsedRealtime() - mLastAnalysisResultTime
                     mLastAnalysisResultTime = SystemClock.elapsedRealtime()
-                    runOnUiThread { applyToUiAnalyzeImageResult(result) }
+                    runOnUiThread { applyToUiAnalyzeImageResult(result,mElapsedTime) }
                 }
             }
 
@@ -127,7 +129,7 @@ abstract class AbstractCameraXActivity<R> : BaseModuleActivity() {
     protected abstract fun analyzeImage(image: ImageProxy?, rotationDegrees: Int): R?
 
     @UiThread
-    protected abstract fun applyToUiAnalyzeImageResult(result: R)
+    protected abstract fun applyToUiAnalyzeImageResult(result: R, mElapsedTime: Long)
 
     companion object {
         private const val REQUEST_CODE_CAMERA_PERMISSION = 200
