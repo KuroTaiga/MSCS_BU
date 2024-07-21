@@ -29,7 +29,7 @@ class ResultView : View {
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-
+        //no results don't draw anything
         if (mResults == null) return
         var textOffSet = 0
         for (result in mResults!!) {
