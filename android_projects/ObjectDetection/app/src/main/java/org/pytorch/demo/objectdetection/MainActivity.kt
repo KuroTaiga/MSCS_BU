@@ -195,7 +195,6 @@ class MainActivity() : AppCompatActivity(), Runnable {
                 0 -> if (resultCode == RESULT_OK && data != null) {
                     mBitmap =  data.extras?.get("data") as Bitmap
                     val matrix = Matrix()
-                    //TODO
                     matrix.postRotate(90.0f)
                     mBitmap = Bitmap.createBitmap(
                         (mBitmap),
@@ -223,7 +222,6 @@ class MainActivity() : AppCompatActivity(), Runnable {
                             val picturePath = cursor.getString(columnIndex)
                             mBitmap = BitmapFactory.decodeFile(picturePath)
                             val matrix = Matrix()
-                            //TODO
                             matrix.postRotate(90.0f)
                             mBitmap = Bitmap.createBitmap(
                                 mBitmap,

@@ -12,6 +12,7 @@ import android.util.Log
 import android.view.TextureView
 import android.view.View
 import android.view.ViewStub
+import android.widget.Button
 import android.widget.TextView
 import androidx.annotation.WorkerThread
 import androidx.camera.core.ImageProxy
@@ -25,14 +26,18 @@ import org.pytorch.torchvision.TensorImageUtils
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 
-class ObjectDetectionActivity() : AbstractCameraXActivity<AnalysisResult?>() {
+class ObjectDetectionActivity: AbstractCameraXActivity<AnalysisResult?>() {
     private var mModule: Module? = null
     private var mResultView: ResultView? = null
+    private var mResultTextView:TextView? = null
     override lateinit var cameraPreviewTextureView: TextureView
     override val contentViewLayoutId: Int = R.layout.activity_object_detection
+    override var mResultQueue = ResultsQueueSet()
     //Debug
     private var mDebugTextView: TextView? = null
     private var mDebugItemCount = 0
+
+
 
 
     class AnalysisResult(internal val mResults: ArrayList<Result>)
@@ -40,26 +45,51 @@ class ObjectDetectionActivity() : AbstractCameraXActivity<AnalysisResult?>() {
     override fun onCreate(savedInstanceState: Bundle?) {
         setContentView(contentViewLayoutId)
         cameraPreviewTextureView = updateCameraPreviewTextureView()
+        mDebugTextView = findViewById(R.id.debugText)
+        mResultTextView = findViewById(R.id.resultText)
+        val buttonDrawBox = findViewById<Button>(R.id.drawResultsButton)
+        buttonDrawBox.text = ("Drawing Results")
+        buttonDrawBox.setOnClickListener(View.OnClickListener {
+            if (mResultView!!.mDrawBoxes){
+                buttonDrawBox.text = ("Not Drawing Results")
+            } else {
+                buttonDrawBox.text = ("Drawing Results")
+            }
+            mResultView!!.mDrawBoxes = !mResultView!!.mDrawBoxes
+        })
+
+        val buttonClearResults = findViewById<Button>(R.id.clearResultQueueButton)
+        buttonClearResults.setOnClickListener(View.OnClickListener {
+            mResultQueue = ResultsQueueSet()
+            mResultTextView!!.text = "Reset Done"
+        })
+
         super.onCreate(savedInstanceState)
     }
 
     private fun updateCameraPreviewTextureView(): TextureView {
         mResultView = findViewById(R.id.resultView)
         //Debug
-        mDebugTextView = findViewById(R.id.debugText)
+
 
         return (findViewById<View>(R.id.object_detection_texture_view_stub) as ViewStub)
             .inflate()
             .findViewById(R.id.object_detection_texture_view)
     }
 
-    override fun applyToUiAnalyzeImageResult(result: AnalysisResult?) {
+    override fun applyToUiAnalyzeImageResult(result: AnalysisResult?, mElapsedTime: Long) {
         mResultView!!.setResults(result!!.mResults)
         //Debug
         val debugText = "# of obj identified: $mDebugItemCount"
         mDebugTextView!!.text = debugText
-
         mResultView!!.invalidate()
+        //TODO:update the result text of the ranking of the objects based on total detection time
+        for (r in result.mResults){
+            mResultQueue.addResult(PrePostProcessor.mClasses[r.classIndex]!!,mElapsedTime)
+        }
+        mResultTextView!!.text = mResultQueue.getResultText()
+
+
     }
 
     private fun imgToBitmap(image: Image?): Bitmap {

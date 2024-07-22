@@ -175,14 +175,6 @@ object PrePostProcessor {
         for (i in 0 until mOutputRow_v7) {
             val logObjScore = 1 / (1 + exp(-outputs[i * mOutputColumn_v7 + 4].toDouble())
                 .toFloat())
-            //TODO: delete this
-            if (logObjScore > 0.3) {
-                //Log.i("Possitive prediction", String.valueOf(logObjScore));
-                count++
-            }
-
-            //Log.i("Prediction", String.valueOf(outputs[i* mOutputColumn_v7 +4]));
-            //TODO: revert the
             if (outputs[i * mOutputColumn_v7 + 4] > mThreshold) {
                 // object score is greater than threshold
                 Log.i("obj", outputs[i * mOutputColumn_v7 + 4].toString())
