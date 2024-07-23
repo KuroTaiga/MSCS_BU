@@ -83,7 +83,6 @@ class ObjectDetectionActivity: AbstractCameraXActivity<AnalysisResult?>() {
         val debugText = "# of obj identified: $mDebugItemCount"
         mDebugTextView!!.text = debugText
         mResultView!!.invalidate()
-        //TODO:update the result text of the ranking of the objects based on total detection time
         for (r in result.mResults){
             mResultQueue.addResult(PrePostProcessor.mClasses[r.classIndex]!!,mElapsedTime)
         }
@@ -119,7 +118,7 @@ class ObjectDetectionActivity: AbstractCameraXActivity<AnalysisResult?>() {
     }
 
     @WorkerThread
-    override fun analyzeImage(image: ImageProxy?, rotationDegrees: Int): AnalysisResult? {
+    override fun analyzeImage(image: ImageProxy?): AnalysisResult? {
         try {
             if (mModule == null) {
                 mModule = LiteModuleLoader.load(
@@ -130,13 +129,14 @@ class ObjectDetectionActivity: AbstractCameraXActivity<AnalysisResult?>() {
                 )
             }
         } catch (e: IOException) {
-            Log.e("Object Detection", "Error reading assets", e)
+            //Log.e("Object Detection", "Error reading assets", e)
             return null
         }
         var bitmap = imgToBitmap(image!!.image)
         val matrix = Matrix()
         matrix.postRotate(90.0f)
         bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+
         val resizedBitmap = Bitmap.createScaledBitmap(
             bitmap,
             PrePostProcessor.mInputWidth,
@@ -151,23 +151,27 @@ class ObjectDetectionActivity: AbstractCameraXActivity<AnalysisResult?>() {
         )
         var outputTensor: Tensor? = null
         if (MainActivity.MODEL_NAME === "old_best.torchscript" || MainActivity.MODEL_NAME === "NoLastLayer.torchscript.ptl") {
+
             val outputTuple = mModule!!.forward(IValue.from(inputTensor)).toTuple()
             outputTensor = outputTuple[0].toTensor()
+            //Debug
+            //Log.i("Output size",outputTensor.shape().toList().toString())
         } else {
             val outputTensorList = mModule!!.forward(IValue.from(inputTensor)).toTensorList()
             outputTensor = outputTensorList[0]
         }
         val outputs = outputTensor!!.dataAsFloatArray
+        //Log.i("bitmap width", bitmap.getWidth().toString())
+        //Log.i("bitmap height", bitmap.getHeight().toString())
 
-        //Log.i("bitmap height", String.valueOf(bitmap.getHeight()));
-        //Log.i("bitmap width", String.valueOf(bitmap.getWidth()));
         val imgScaleX = bitmap.width.toFloat() / PrePostProcessor.mInputWidth
         val imgScaleY = bitmap.height.toFloat() / PrePostProcessor.mInputHeight
 
         //Log.i("Orientation", String.valueOf(getWindowManager().getDefaultDisplay().getRotation()));
         val ivScaleX = mResultView!!.width.toFloat() / bitmap.width
         val ivScaleY = mResultView!!.height.toFloat() / bitmap.height
-
+        //Log.i("mResultView width", mResultView!!.width.toString())
+        //Log.i("mResultView height", mResultView!!.height.toString())
         val results =
             outputsToNMSPredictions(outputs, imgScaleX, imgScaleY, ivScaleX, ivScaleY, 0f, 0f)
         //Debug

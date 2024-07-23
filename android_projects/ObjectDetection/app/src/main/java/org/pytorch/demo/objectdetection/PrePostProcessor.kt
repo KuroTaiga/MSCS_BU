@@ -9,7 +9,6 @@ import android.graphics.Rect
 import android.util.Log
 import java.util.Arrays
 import java.util.Collections
-import kotlin.math.exp
 import kotlin.math.max
 import kotlin.math.min
 
@@ -32,9 +31,9 @@ object PrePostProcessor {
     // model output is of size 25200*(num_of_class+5)
     private const val mOutputRow =
         25200 // as decided by the YOLOv5 model for input image of size 640*640
-    private const val mOutputRow_v7 = 19200 //by yolov7
+    //private const val mOutputRow_v7 = 19200 //by yolov7
     private const val mOutputColumn = 9 // left, top, right, bottom, score and 4 class probability
-    private const val mOutputColumn_v7 = 9
+    //private const val mOutputColumn_v7 = 9
     private const val mThreshold = 0.30f // score above which a detection is generated
     private const val mNmsLimit = 15
 
@@ -130,9 +129,16 @@ object PrePostProcessor {
         startX: Float,
         startY: Float
     ): ArrayList<Result> {
-        if (MainActivity.MODEL_NAME === "old_best.torchscript" || MainActivity.MODEL_NAME === "NoLastLayer.torchscript.ptl") {
+        //Debug
+        //Log.i("imgScaleX",imgScaleX.toString())
+        //Log.i("imgScaleY",imgScaleY.toString())
+        //Log.i("ivScaleX",ivScaleX.toString())
+        //Log.i("ivScaleY",ivScaleY.toString())
+        //Log.i("startX",startX.toString())
+        //Log.i("startY",startY.toString())
+        //if (MainActivity.MODEL_NAME === "old_best.torchscript" || MainActivity.MODEL_NAME === "NoLastLayer.torchscript.ptl") {
             //v5
-            return outputsToNMSPredictions_v5(
+            return outputstonmspredictionsV5(
                 outputs,
                 imgScaleX,
                 imgScaleY,
@@ -141,84 +147,85 @@ object PrePostProcessor {
                 startX,
                 startY
             )
-        }
-        return outputsToNMSPredictions_v7(
-            outputs,
-            imgScaleX,
-            imgScaleY,
-            ivScaleX,
-            ivScaleY,
-            startX,
-            startY
-        )
+        //}
+//        return outputsToNMSPredictions_v7(
+//            outputs,
+//            imgScaleX,
+//            imgScaleY,
+//            ivScaleX,
+//            ivScaleY,
+//            startX,
+//            startY
+//        )
+
     }
 
-    fun outputsToNMSPredictions_v7(
-        outputs: FloatArray,
-        imgScaleX: Float,
-        imgScaleY: Float,
-        ivScaleX: Float,
-        ivScaleY: Float,
-        startX: Float,
-        startY: Float
-    ): ArrayList<Result> {
-        val results = ArrayList<Result>()
-        // YoloV7 output: [1,3,80,80,9] => [n_image, n_anchorsize, gridrows,gridcols,features(cx,cy,w,h,obj score,class score(size 4))]
-        for (i in 0..9) {
-            Log.i(
-                "xywh,obj,classes4",
-                Arrays.copyOfRange(outputs, i * mOutputColumn_v7, (i + 1) * mOutputColumn_v7)
-                    .contentToString()
-            )
-        }
-        var count = 0
-        for (i in 0 until mOutputRow_v7) {
-            val logObjScore = 1 / (1 + exp(-outputs[i * mOutputColumn_v7 + 4].toDouble())
-                .toFloat())
-            if (outputs[i * mOutputColumn_v7 + 4] > mThreshold) {
-                // object score is greater than threshold
-                Log.i("obj", outputs[i * mOutputColumn_v7 + 4].toString())
-                Log.i(
-                    "xywh,obj,classes4",
-                    Arrays.copyOfRange(outputs, i * mOutputColumn_v7, (i + 1) * mOutputColumn_v7)
-                        .contentToString()
-                )
-                val x = outputs[i * mOutputColumn_v7]
-                val y = outputs[i * mOutputColumn_v7 + 1]
-                val w = outputs[i * mOutputColumn_v7 + 2]
-                val h = outputs[i * mOutputColumn_v7 + 3]
+//    fun outputsToNMSPredictions_v7(
+//        outputs: FloatArray,
+//        imgScaleX: Float,
+//        imgScaleY: Float,
+//        ivScaleX: Float,
+//        ivScaleY: Float,
+//        startX: Float,
+//        startY: Float
+//    ): ArrayList<Result> {
+//        val results = ArrayList<Result>()
+//        // YoloV7 output: [1,3,80,80,9] => [n_image, n_anchorsize, gridrows,gridcols,features(cx,cy,w,h,obj score,class score(size 4))]
+//        for (i in 0..9) {
+//            //Log.i(
+//                "xywh,obj,classes4",
+//                Arrays.copyOfRange(outputs, i * mOutputColumn_v7, (i + 1) * mOutputColumn_v7)
+//                    .contentToString()
+//            )
+//        }
+//        var count = 0
+//        for (i in 0 until mOutputRow_v7) {
+//            val //LogObjScore = 1 / (1 + exp(-outputs[i * mOutputColumn_v7 + 4].toDouble())
+//                .toFloat())
+//            if (outputs[i * mOutputColumn_v7 + 4] > mThreshold) {
+//                // object score is greater than threshold
+//                //Log.i("obj", outputs[i * mOutputColumn_v7 + 4].toString())
+//                //Log.i(
+//                    "xywh,obj,classes4",
+//                    Arrays.copyOfRange(outputs, i * mOutputColumn_v7, (i + 1) * mOutputColumn_v7)
+//                        .contentToString()
+//                )
+//                val x = outputs[i * mOutputColumn_v7]
+//                val y = outputs[i * mOutputColumn_v7 + 1]
+//                val w = outputs[i * mOutputColumn_v7 + 2]
+//                val h = outputs[i * mOutputColumn_v7 + 3]
+//
+//                val left = imgScaleX * (x - w / 2)
+//                val top = imgScaleY * (y - h / 2)
+//                val right = imgScaleX * (x + w / 2)
+//                val bottom = imgScaleY * (y + h / 2)
+//
+//                var max = outputs[i * mOutputColumn_v7 + 5]
+//                var cls = 0
+//                for (j in 0 until mOutputColumn_v7 - 5) {
+//                    if (-outputs[i * mOutputColumn_v7 + 5 + j] > max) {
+//                        max = outputs[i * mOutputColumn_v7 + 5 + j]
+//                        cls = j
+//                    }
+//                }
+//
+//                val rect = Rect(
+//                    (startX + ivScaleX * left).toInt(),
+//                    (startY + top * ivScaleY).toInt(),
+//                    (startX + ivScaleX * right).toInt(),
+//                    (startY + ivScaleY * bottom).toInt()
+//                )
+//                val result = Result(cls, outputs[i * mOutputColumn_v7 + 4], rect)
+//                results.add(result)
+//            } else {
+//                //Log.i("not high enough obj score", String.valueOf(outputs[i* mOutputColumn_v7 +4]));
+//            }
+//        }
+//        //Log.i("Positive prediction count", count.toString())
+//        return nonMaxSuppression(results, mNmsLimit, mThreshold)
+//    }
 
-                val left = imgScaleX * (x - w / 2)
-                val top = imgScaleY * (y - h / 2)
-                val right = imgScaleX * (x + w / 2)
-                val bottom = imgScaleY * (y + h / 2)
-
-                var max = outputs[i * mOutputColumn_v7 + 5]
-                var cls = 0
-                for (j in 0 until mOutputColumn_v7 - 5) {
-                    if (-outputs[i * mOutputColumn_v7 + 5 + j] > max) {
-                        max = outputs[i * mOutputColumn_v7 + 5 + j]
-                        cls = j
-                    }
-                }
-
-                val rect = Rect(
-                    (startX + ivScaleX * left).toInt(),
-                    (startY + top * ivScaleY).toInt(),
-                    (startX + ivScaleX * right).toInt(),
-                    (startY + ivScaleY * bottom).toInt()
-                )
-                val result = Result(cls, outputs[i * mOutputColumn_v7 + 4], rect)
-                results.add(result)
-            } else {
-                //Log.i("not high enough obj score", String.valueOf(outputs[i* mOutputColumn_v7 +4]));
-            }
-        }
-        Log.i("Positive prediction count", count.toString())
-        return nonMaxSuppression(results, mNmsLimit, mThreshold)
-    }
-
-    fun outputsToNMSPredictions_v5(
+    private fun outputstonmspredictionsV5(
         outputs: FloatArray,
         imgScaleX: Float,
         imgScaleY: Float,
@@ -230,9 +237,11 @@ object PrePostProcessor {
         val results = ArrayList<Result>()
         //Debug
         var count = 0
+
         for (i in 0 until mOutputRow) {
             if (outputs[i * mOutputColumn + 4] > mThreshold) {
                 //Debug
+                //Log.i("Unprocessed val",outputs[i * mOutputColumn + 4].toString())
                 count++
                 val x = outputs[i * mOutputColumn]
                 val y = outputs[i * mOutputColumn + 1]
@@ -264,7 +273,7 @@ object PrePostProcessor {
             }
         }
         //Debug
-        Log.i("Detection debug", "Found $count")
+        //Log.i("Detection debug", "Found $count")
         return nonMaxSuppression(results, mNmsLimit, mThreshold)
     }
 }

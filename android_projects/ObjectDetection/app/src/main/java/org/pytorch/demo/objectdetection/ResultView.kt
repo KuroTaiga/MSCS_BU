@@ -15,6 +15,9 @@ import android.util.AttributeSet
 import android.view.View
 
 class ResultView : View {
+    //TODO: Update to maintain a 3:4 width-height aspect ratio
+    //private val aspectRatioWidth = 3
+    //private val aspectRatioHeight = 4
     private var mPaintRectangle: Paint? = null
     private var mPaintText: Paint? = null
     private var mResults: ArrayList<Result>? = null
@@ -28,6 +31,22 @@ class ResultView : View {
         mPaintRectangle!!.color = Color.YELLOW
         mPaintText = Paint()
     }
+
+
+//    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+//        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+//        val width = MeasureSpec.getSize(widthMeasureSpec)
+//        val height = MeasureSpec.getSize(heightMeasureSpec)
+//        if (aspectRatioWidth == 0 || aspectRatioHeight == 0) {
+//            setMeasuredDimension(width, height)
+//        } else {
+//            if (width < height * aspectRatioWidth / aspectRatioHeight) {
+//                setMeasuredDimension(width, width * aspectRatioHeight / aspectRatioWidth)
+//            } else {
+//                setMeasuredDimension(height * aspectRatioWidth / aspectRatioHeight, height)
+//            }
+//        }
+//    }
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)

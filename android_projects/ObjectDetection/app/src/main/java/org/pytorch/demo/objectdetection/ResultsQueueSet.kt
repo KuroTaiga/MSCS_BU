@@ -33,7 +33,7 @@ class ResultsQueueSet{
         val tempQueue = PriorityQueue(queue)
         while(tempQueue.isNotEmpty()){
             val resultPair = tempQueue.poll()
-            resultText.append("${resultPair.name}: ${resultPair.time}ms\n")
+            resultText.append("${resultPair.name}: ${resultPair.time}\n")
         }
         return resultText.toString().trim()
     }
