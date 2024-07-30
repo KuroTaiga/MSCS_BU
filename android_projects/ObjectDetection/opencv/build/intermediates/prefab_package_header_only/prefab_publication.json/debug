@@ -1,0 +1,17 @@
+{
+  "installationFolder": "C:\\BU\\CSSE\\android_projects\\ObjectDetection\\opencv\\build\\intermediates\\prefab_package\\debug\\prefab",
+  "gradlePath": ":opencv",
+  "packageInfo": {
+    "packageName": "opencv",
+    "packageSchemaVersion": 2,
+    "packageDependencies": [],
+    "modules": [
+      {
+        "moduleName": "opencv_jni_shared",
+        "moduleHeaders": "C:\\BU\\CSSE\\android_projects\\ObjectDetection\\opencv\\native\\jni\\include",
+        "moduleExportLibraries": [],
+        "abis": []
+      }
+    ]
+  }
+}

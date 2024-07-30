@@ -88,4 +88,15 @@
         app:layout_constraintStart_toEndOf="@+id/selectButton"
         app:layout_constraintTop_toTopOf="@+id/selectButton" />
 
+    <Button
+        android:id = "@+id/cableButton"
+        android:layout_height="wrap_content"
+        android:layout_width="100dp"
+        android:text="@string/Cable"
+        android:textAllCaps="false"
+        android:layout_marginTop="20dp"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="@+id/selectButton"
+        app:layout_constraintTop_toBottomOf="@+id/selectButton"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

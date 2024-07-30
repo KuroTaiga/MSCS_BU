@@ -93,6 +93,7 @@ class MainActivity() : AppCompatActivity(), Runnable {
         mResultView = findViewById(R.id.resultView)
         mResultView.setVisibility(View.INVISIBLE)
 
+
         val buttonTest = findViewById<Button>(R.id.testButton)
         buttonTest.text = ("Test Image 1/3")
         buttonTest.setOnClickListener(View.OnClickListener {
@@ -142,6 +143,14 @@ class MainActivity() : AppCompatActivity(), Runnable {
         buttonLive.setOnClickListener(object : View.OnClickListener {
             override fun onClick(v: View) {
                 val intent = Intent(this@MainActivity, ObjectDetectionActivity::class.java)
+                startActivity(intent)
+            }
+        })
+
+        val buttonCable = findViewById<Button>(R.id.cableButton)
+        buttonCable.setOnClickListener(object : View.OnClickListener{
+            override fun onClick(v: View?) {
+                val intent = Intent(this@MainActivity,CableDetectionActivity::class.java)
                 startActivity(intent)
             }
         })

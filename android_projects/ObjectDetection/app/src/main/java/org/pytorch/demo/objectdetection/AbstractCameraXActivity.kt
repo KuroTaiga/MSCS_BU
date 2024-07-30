@@ -138,7 +138,7 @@ abstract class AbstractCameraXActivity<R> : BaseModuleActivity() {
 //                )
                 .setResolutionStrategy(ResolutionStrategy(targetResolutionSize,ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER))
                 .build()
-            //Log.i("Textureview Rotation",textureView.display.rotation.toString())
+            Log.i("Textureview Rotation",textureView.display.rotation.toString())
             val preview = Preview.Builder()
                 //.setTargetRotation(textureView.display.rotation)
                 .setResolutionSelector(mResolutionSelector)
@@ -149,23 +149,23 @@ abstract class AbstractCameraXActivity<R> : BaseModuleActivity() {
                 it.provideSurface(surface, cameraExecutor) { result ->
                     when (result.resultCode) {
                         SurfaceRequest.Result.RESULT_SURFACE_USED_SUCCESSFULLY -> {
-                            //Log.d("CameraXApp", "Surface was used successfully.")
+                            Log.d("CameraXApp", "Surface was used successfully.")
                         }
 
                         SurfaceRequest.Result.RESULT_INVALID_SURFACE -> {
-                            //Log.e("CameraXApp", "Invalid surface.")
+                            Log.e("CameraXApp", "Invalid surface.")
                         }
 
                         SurfaceRequest.Result.RESULT_SURFACE_ALREADY_PROVIDED -> {
-                            //Log.e("CameraXApp", "Surface already provided.")
+                            Log.e("CameraXApp", "Surface already provided.")
                         }
 
                         SurfaceRequest.Result.RESULT_REQUEST_CANCELLED -> {
-                            //Log.e("CameraXApp", "Surface request cancelled.")
+                            Log.e("CameraXApp", "Surface request cancelled.")
                         }
 
                         SurfaceRequest.Result.RESULT_WILL_NOT_PROVIDE_SURFACE -> {
-                            //Log.e("CameraXApp", "Will not provide surface")
+                            Log.e("CameraXApp", "Will not provide surface")
                         }
                     }
                 }
@@ -180,7 +180,7 @@ abstract class AbstractCameraXActivity<R> : BaseModuleActivity() {
                 cameraProvider.unbindAll()
                 cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageAnalysis)
             } catch (e: Exception) {
-                //Log.e("CameraXApp", "Camera Failed", e)
+                Log.e("CameraXApp", "Camera Failed", e)
             }
         }, ContextCompat.getMainExecutor(this))
     }

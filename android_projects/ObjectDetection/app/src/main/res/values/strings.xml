@@ -2,11 +2,12 @@
     <string name="app_name">YOLOv7</string>
     <string name="image_view">Image View</string>
     <string name="detect">Detect</string>
-    <string name="run_model">Running the model...</string>
+    <string name="run_model">Running the model…</string>
     <string name="showPose">show pose</string>
     <string name="restart">Restart</string>
     <string name="select">Select</string>
     <string name="live">Live</string>
+    <string name="Cable">Cable</string>
     <string name="drawResults">Paint Detection Boxes</string>
     <string name="clearResults">Clear results</string>
 </resources>
