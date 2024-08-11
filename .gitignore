@@ -37,3 +37,4 @@ android_projects/ObjectDetection/app/src/main/assets/old_best.torchscript
 /masterthesis/GymMate
 *.aab
 /android_projects/ObjectDetection/opencv/
+/android_projects/ObjectDetection/opencv

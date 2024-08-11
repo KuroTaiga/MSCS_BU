@@ -186,9 +186,12 @@ class MainActivity() : AppCompatActivity(), Runnable {
             val br = BufferedReader(InputStreamReader(assets.open("classes.txt")))
             var line: String
             val classes: MutableList<String> = ArrayList()
-            while ((br.readLine().also { line = it }) != null) {
-                classes.add(line)
+            while(br.ready()){
+                classes.add(br.readLine())
             }
+//            while ((br.readLine().also { line = it }) != null) {
+//                classes.add(line)
+//            }
             //PrePostProcessor.mClasses = arrayOfNulls<String>(classes.size)
             PrePostProcessor.mClasses = classes.toTypedArray()
         } catch (e: IOException) {
