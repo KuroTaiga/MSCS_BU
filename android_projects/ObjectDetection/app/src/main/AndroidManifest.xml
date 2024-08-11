@@ -29,6 +29,12 @@
             android:screenOrientation="portrait"
             android:exported="false">
         </activity>
+        <activity
+            android:name=".CableDetectionActivity"
+            android:configChanges="orientation"
+            android:exported="false">
+        </activity>
+
     </application>
 
 </manifest>

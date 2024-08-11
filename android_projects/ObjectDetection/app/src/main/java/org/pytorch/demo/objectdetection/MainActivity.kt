@@ -93,6 +93,7 @@ class MainActivity() : AppCompatActivity(), Runnable {
         mResultView = findViewById(R.id.resultView)
         mResultView.setVisibility(View.INVISIBLE)
 
+
         val buttonTest = findViewById<Button>(R.id.testButton)
         buttonTest.text = ("Test Image 1/3")
         buttonTest.setOnClickListener(View.OnClickListener {
@@ -146,6 +147,14 @@ class MainActivity() : AppCompatActivity(), Runnable {
             }
         })
 
+        val buttonCable = findViewById<Button>(R.id.cableButton)
+        buttonCable.setOnClickListener(object : View.OnClickListener{
+            override fun onClick(v: View?) {
+                val intent = Intent(this@MainActivity,CableDetectionActivity::class.java)
+                startActivity(intent)
+            }
+        })
+
         mButtonDetect = findViewById(R.id.detectButton)
         mProgressBar = findViewById<View>(R.id.progressBar) as ProgressBar
         mButtonDetect.setOnClickListener(object : View.OnClickListener {
@@ -177,9 +186,12 @@ class MainActivity() : AppCompatActivity(), Runnable {
             val br = BufferedReader(InputStreamReader(assets.open("classes.txt")))
             var line: String
             val classes: MutableList<String> = ArrayList()
-            while ((br.readLine().also { line = it }) != null) {
-                classes.add(line)
+            while(br.ready()){
+                classes.add(br.readLine())
             }
+//            while ((br.readLine().also { line = it }) != null) {
+//                classes.add(line)
+//            }
             //PrePostProcessor.mClasses = arrayOfNulls<String>(classes.size)
             PrePostProcessor.mClasses = classes.toTypedArray()
         } catch (e: IOException) {
