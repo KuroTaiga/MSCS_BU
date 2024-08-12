@@ -8,6 +8,7 @@
     <string name="select">Select</string>
     <string name="live">Live</string>
     <string name="Cable">Cable</string>
+    <string name="Flow">Dense Optical Flow</string>
     <string name="drawResults">Paint Detection Boxes</string>
     <string name="clearResults">Clear results</string>
 </resources>

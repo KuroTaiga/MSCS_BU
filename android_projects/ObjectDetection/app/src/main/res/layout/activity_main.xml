@@ -96,7 +96,18 @@
         android:textAllCaps="false"
         android:layout_marginTop="20dp"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="@+id/selectButton"
-        app:layout_constraintTop_toBottomOf="@+id/selectButton"/>
+        app:layout_constraintStart_toStartOf="@+id/testButton"
+        app:layout_constraintTop_toBottomOf="@+id/testButton"/>
+
+    <Button
+        android:id = "@+id/opticalFlowButton"
+        android:layout_height="wrap_content"
+        android:layout_width="100dp"
+        android:text="@string/Flow"
+        android:textAllCaps="false"
+        android:layout_marginTop="20dp"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="@+id/liveButton"
+        app:layout_constraintTop_toBottomOf="@+id/liveButton"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

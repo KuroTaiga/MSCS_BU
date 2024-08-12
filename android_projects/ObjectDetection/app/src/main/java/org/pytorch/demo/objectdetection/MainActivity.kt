@@ -155,6 +155,14 @@ class MainActivity() : AppCompatActivity(), Runnable {
             }
         })
 
+        val buttonOpticalFlow = findViewById<Button>(R.id.opticalFlowButton)
+        buttonOpticalFlow.setOnClickListener(object : View.OnClickListener{
+            override fun onClick(v: View?) {
+                val intent  = Intent(this@MainActivity,DenseOpticalFlowActivity::class.java)
+                startActivity(intent)
+            }
+        })
+
         mButtonDetect = findViewById(R.id.detectButton)
         mProgressBar = findViewById<View>(R.id.progressBar) as ProgressBar
         mButtonDetect.setOnClickListener(object : View.OnClickListener {
