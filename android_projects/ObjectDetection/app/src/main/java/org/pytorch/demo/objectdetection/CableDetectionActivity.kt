@@ -23,22 +23,30 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import org.pytorch.Module
 import org.opencv.android.OpenCVLoader
+import org.opencv.core.Core
 import org.opencv.core.CvType
 import org.opencv.core.Mat
 import org.opencv.core.Point
 import org.opencv.core.Scalar
 import org.opencv.imgproc.Imgproc
+import org.opencv.video.Video
 import org.pytorch.demo.objectdetection.AbstractCameraXActivity.Companion
 import java.nio.ByteBuffer
 
 class CableDetectionActivity: AppCompatActivity() {
     private lateinit var previewView: PreviewView
+    private lateinit var cableTextView: TextView
+    private lateinit var cableView: LineView
+    private lateinit var cableOverlayView: CableOverlayView
+    private var previousFrame: Mat? = null
     private val lines = mutableListOf<Pair<Point, Point>>()
-
+    private var previousLineLengths = mutableListOf<Double>()
     override fun onCreate(savedInstanceState: Bundle?,) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_cable_detection)
         previewView  = findViewById(R.id.cablePreview)
+        cableTextView = findViewById(R.id.cableText)
+        cableOverlayView = findViewById(R.id.cableOverlay)
 
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA)
             != PackageManager.PERMISSION_GRANTED
@@ -112,8 +120,8 @@ class CableDetectionActivity: AppCompatActivity() {
 
     private fun processImage(imageProxy: ImageProxy) {
         try {
-
-            lines.clear()//make sure it doesn't overflow the memory
+            lines.clear() // Make sure it doesn't overflow the memory
+            val currentLineLengths = mutableListOf<Double>()
             val buffer: ByteBuffer = imageProxy.planes[0].buffer
             val data = ByteArray(buffer.capacity())
             buffer.get(data)
@@ -126,56 +134,88 @@ class CableDetectionActivity: AppCompatActivity() {
             val grayMat = Mat()
             Imgproc.cvtColor(mat, grayMat, Imgproc.COLOR_YUV2GRAY_420)
 
-            val edges = Mat()
-            Imgproc.Canny(grayMat, edges, 50.0, 150.0)
+            if (previousFrame != null) {
+                // Calculate Optical Flow
+                val flow = Mat()
 
-            val linesMat = Mat()
-            Imgproc.HoughLinesP(edges, linesMat, 1.0, Math.PI / 180, 50, 50.0, 10.0)
+                Video.calcOpticalFlowFarneback(previousFrame, grayMat, flow, 0.5, 3, 15, 3, 5, 1.2, 0)
 
-            for (i in 0 until linesMat.rows()) {
-                val line = linesMat[i, 0]
-                val pt1 = Point(line[0], line[1])
-                val pt2 = Point(line[2], line[3])
-                // Convert points to match the preview view's coordinate system
-                val convertedPt1 = convertPoint(pt1, width, height)
-                val convertedPt2 = convertPoint(pt2, width, height)
+                // Calculate magnitude of flow
+                val flowParts = ArrayList<Mat>(2)
+                Core.split(flow, flowParts)
+                val magnitude = Mat()
+                val angle = Mat()
+                Core.cartToPolar(flowParts[0], flowParts[1], magnitude, angle)
 
-                lines.add(Pair(pt1, pt2))
+                // Threshold the magnitude
+                val thresholded = Mat()
+                Core.compare(magnitude, Scalar(10.0), thresholded, Core.CMP_GT)
+
+                // Only detect lines in the regions with flow magnitude > 10.0
+                val edges = Mat()
+                Imgproc.Canny(grayMat, edges, 50.0, 150.0)
+                Core.bitwise_and(edges, thresholded, edges)
+
+                val linesMat = Mat()
+                Imgproc.HoughLinesP(edges, linesMat, 1.0, Math.PI / 180, 50, 50.0, 10.0)
+
+                for (i in 0 until linesMat.rows()) {
+                    val line = linesMat[i, 0]
+                    val pt1 = Point(line[0], line[1])
+                    val pt2 = Point(line[2], line[3])
+                    val lineLength = calculateLineLength(pt1, pt2)
+
+                    // Store the line length for comparison in the next frame
+                    currentLineLengths.add(lineLength)
+
+
+                    if (previousLineLengths.isEmpty() || isLengthChangeAcceptable(lineLength, i)) {
+                        // Convert points to match the preview view's coordinate system
+                        val convertedPt1 = convertPoint(pt1, width, height)
+                        val convertedPt2 = convertPoint(pt2, width, height)
+
+                        lines.add(Pair(convertedPt1, convertedPt2) as Pair<Point, Point>)
+                    }
+                }
+
+                // Release Mats
+                flow.release()
+                magnitude.release()
+                angle.release()
+                thresholded.release()
+                edges.release()
+                linesMat.release()
             }
-            //Debug
-            Log.i("LineCount",lines.size.toString())
+            previousLineLengths = currentLineLengths
+            // Set the current frame as the previous frame for the next iteration
+            previousFrame = grayMat.clone()
 
+            // Update UI with detected lines
             runOnUiThread {
-                // Draw lines on the preview
-//                val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-//                val canvas = Canvas(bitmap)
-//                val paint = Paint().apply {
-//                    color = Color.RED
-//                    strokeWidth = 20f
-//                }
-//                lines.forEach { line ->
-//                    canvas.drawLine(
-//                        line.first.x.toFloat(), line.first.y.toFloat(),
-//                        line.second.x.toFloat(), line.second.y.toFloat(),
-//                        paint
-//                    )
-//                }
-//                previewView.overlay.clear()
-//                previewView.overlay.add(BitmapDrawable(resources, bitmap))
-                previewView.invalidate()
                 drawLinesOnPreviewView(width, height)
+                cableTextView.text = "Lines Detected: " + lines.size
             }
-            //handle release of memory
-            mat.release()
-            grayMat.release()
-            edges.release()
-            linesMat.release()
+
         } finally {
             imageProxy.close()
-
         }
-
     }
+
+
+    private fun calculateLineLength(pt1: Point, pt2: Point): Double {
+        return Math.sqrt(Math.pow(pt2.x - pt1.x, 2.0) + Math.pow(pt2.y - pt1.y, 2.0))
+    }
+
+    private fun isLengthChangeAcceptable(currentLength: Double, index: Int): Boolean {
+        if (index >= previousLineLengths.size) {
+            return true
+        }
+        val previousLength = previousLineLengths[index]
+        val lengthChangeThreshold = 5.0 // Define a threshold for acceptable length change
+
+        return Math.abs(currentLength - previousLength) <= lengthChangeThreshold
+    }
+
 
     private fun convertPoint(pt: Point, frameWidth: Int, frameHeight: Int): Any {
         // Convert the points from OpenCV coordinates to PreviewView coordinates
@@ -191,6 +231,8 @@ class CableDetectionActivity: AppCompatActivity() {
         return Point(x, y)
     }
     private fun drawLinesOnPreviewView(frameWidth: Int, frameHeight: Int) {
+        cableOverlayView.lines = lines.toList()
+        cableOverlayView.invalidate()
         // Create a bitmap matching the preview view size
         val bitmap = Bitmap.createBitmap(previewView.width, previewView.height, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
@@ -211,6 +253,7 @@ class CableDetectionActivity: AppCompatActivity() {
         // Clear the previous overlay and add the new one
         previewView.overlay.clear()
         previewView.overlay.add(BitmapDrawable(resources, bitmap))
+        previewView.invalidate()
     }
 
     companion object {

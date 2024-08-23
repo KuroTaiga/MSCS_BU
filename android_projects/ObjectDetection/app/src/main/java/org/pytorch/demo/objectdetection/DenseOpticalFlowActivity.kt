@@ -30,6 +30,7 @@ import java.nio.ByteBuffer
 class DenseOpticalFlowActivity : AppCompatActivity() {
     private lateinit var previewView: PreviewView
     private var prevGray: Mat? = null
+    private val flowThreshhold = 10.0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -142,7 +143,8 @@ class DenseOpticalFlowActivity : AppCompatActivity() {
 
                 canvas.drawBitmap(matBitmap, 0f, 0f, paint)
                 previewView.overlay.clear()
-                previewView.overlay.add(BitmapDrawable(resources, bitmap))
+                previewView.overlay.add(BitmapDrawable(resources, matBitmap))
+                previewView.invalidate()
             }
 
             prevGray?.release()
@@ -165,12 +167,14 @@ class DenseOpticalFlowActivity : AppCompatActivity() {
                 val flowAtPoint = flow.get(y, x)
                 val flowX = flowAtPoint[0]
                 val flowY = flowAtPoint[1]
-
                 val startPoint = Point(x.toDouble(), y.toDouble())
-                val endPoint = Point(x + flowX, y + flowY)
 
-                Imgproc.line(flowImage, startPoint, endPoint, Scalar(0.0, 255.0, 0.0))
-                Imgproc.circle(flowImage, endPoint, 1, Scalar(0.0, 255.0, 0.0), -1)
+                if (flowX>flowThreshhold || flowY>flowThreshhold){
+                    Log.i("FlowX,Y","x:"+flowX.toString()+"y:"+flowY.toString())
+                    val endPoint = Point(x + flowX, y + flowY)
+                    Imgproc.line(flowImage, startPoint, endPoint, Scalar(0.0, 255.0, 0.0))
+                    Imgproc.circle(flowImage, endPoint, 1, Scalar(0.0, 255.0, 0.0), -1)
+                }
             }
         }
         return flowImage
