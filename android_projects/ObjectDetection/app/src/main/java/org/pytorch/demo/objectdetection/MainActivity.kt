@@ -162,6 +162,13 @@ class MainActivity() : AppCompatActivity(), Runnable {
                 startActivity(intent)
             }
         })
+        val buttonPose = findViewById<Button>(R.id.poseButton)
+        buttonPose.setOnClickListener(object :View.OnClickListener{
+            override fun onClick(v: View?) {
+                val intent  = Intent(this@MainActivity, PoseEstimationActivity::class.java)
+                startActivity(intent)
+            }
+        })
 
         mButtonDetect = findViewById(R.id.detectButton)
         mProgressBar = findViewById<View>(R.id.progressBar) as ProgressBar
