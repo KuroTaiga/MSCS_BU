@@ -14,7 +14,9 @@ import android.view.View
 import android.view.ViewStub
 import android.widget.Button
 import android.widget.TextView
+import androidx.annotation.OptIn
 import androidx.annotation.WorkerThread
+import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageProxy
 import org.pytorch.IValue
 import org.pytorch.LiteModuleLoader
@@ -117,6 +119,7 @@ class ObjectDetectionActivity: AbstractCameraXActivity<AnalysisResult?>() {
         return BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
     }
 
+    @OptIn(ExperimentalGetImage::class)
     @WorkerThread
     override fun analyzeImage(image: ImageProxy?): AnalysisResult? {
         try {

@@ -39,6 +39,12 @@
             android:exported="false"
             android:configChanges="orientation">
         </activity>
+        <activity
+            android:name=".PoseEstimationActivity"
+            android:exported="false"
+            android:configChanges="orientation">
+
+        </activity>
 
     </application>
 

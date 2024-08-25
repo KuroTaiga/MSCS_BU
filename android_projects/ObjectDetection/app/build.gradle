@@ -64,7 +64,7 @@ dependencies {
     //implementation 'com.google.mediapipe:mediapipe-framework:0.8.9'
     //implementation 'com.google.mediapipe:mediapipe-solutions:0.8.9'
 
-    implementation 'com.google.mlkit:pose-detection-accurate:18.0.0-beta5'
+    implementation 'com.google.mlkit:pose-detection:18.0.0-beta5'
     implementation 'com.google.android.gms:play-services-location:21.3.0'
 
 }

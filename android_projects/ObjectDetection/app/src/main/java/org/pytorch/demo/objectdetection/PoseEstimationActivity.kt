@@ -18,9 +18,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.google.android.gms.tasks.Task
 import com.google.mlkit.vision.common.InputImage
-import com.google.mlkit.vision.pose.Pose
 
 import com.google.mlkit.vision.pose.PoseDetection
 import com.google.mlkit.vision.pose.PoseDetector
@@ -34,7 +32,7 @@ class PoseEstimationActivity: AppCompatActivity() {
     private lateinit var poseView : PoseDetectionView
     private lateinit var poseDetector: PoseDetector
 
-    private lateinit var allPoseLandmarks : MutableList<PoseLandmark>
+    private var landMarksList : MutableList<PoseLandmark>? = null
 //    private lateinit var leftShoulder : PoseLandmark
 //    private lateinit var rightShoulder : PoseLandmark
 //    private lateinit var leftElbow : PoseLandmark
@@ -129,7 +127,12 @@ class PoseEstimationActivity: AppCompatActivity() {
             // Get all PoseLandmarks. If no person was detected, the list will be empty
             result.addOnSuccessListener {
                 pose ->
-                allPoseLandmarks = pose.allPoseLandmarks
+                landMarksList = pose.allPoseLandmarks
+                Log.i("Pose result",result.toString())
+                runOnUiThread{
+                    poseView.setLankMarks(landMarksList)
+                    poseView.invalidate()
+                }
                 // Or get specific PoseLandmarks individually. These will all be null if no person
                 // was detected
 //                leftShoulder = pose.getPoseLandmark(PoseLandmark.LEFT_SHOULDER)
@@ -170,13 +173,9 @@ class PoseEstimationActivity: AppCompatActivity() {
             }
             result.addOnFailureListener { e -> Log.e("Pose",e.stackTraceToString()) }
 
-            Log.i("Pose result",result.toString())
-            runOnUiThread{
-                poseView.setLankMarks(allPoseLandmarks)
-                poseView.invalidate()
-            }
+
             
-            imageProxy.close()
+            //imageProxy.close()
         }
     }
 
