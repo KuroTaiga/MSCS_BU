@@ -31,12 +31,28 @@ import kotlin.math.atan2
 
 class PoseEstimationActivity: AppCompatActivity() {
     private lateinit var previewView: PreviewView
+    private lateinit var poseView : PoseDetectionView
     private lateinit var poseDetector: PoseDetector
+
+    private lateinit var allPoseLandmarks : MutableList<PoseLandmark>
+//    private lateinit var leftShoulder : PoseLandmark
+//    private lateinit var rightShoulder : PoseLandmark
+//    private lateinit var leftElbow : PoseLandmark
+//    private lateinit var rightElbow : PoseLandmark
+//    private lateinit var leftWrist : PoseLandmark
+//    private lateinit var rightWrist : PoseLandmark
+//    private lateinit var leftHip : PoseLandmark
+//    private lateinit var rightHip : PoseLandmark
+//    private lateinit var leftKnee : PoseLandmark
+//    private lateinit var rightKnee : PoseLandmark
+//    private lateinit var leftAnkle : PoseLandmark
+//    private lateinit var rightAnkle : PoseLandmark
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_pose_estimation)
         previewView = findViewById(R.id.posePreview)
+        poseView = findViewById(R.id.poseOverlay)
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
             != PackageManager.PERMISSION_GRANTED
@@ -113,49 +129,54 @@ class PoseEstimationActivity: AppCompatActivity() {
             // Get all PoseLandmarks. If no person was detected, the list will be empty
             result.addOnSuccessListener {
                 pose ->
-                val allPoseLandmarks = pose.allPoseLandmarks
+                allPoseLandmarks = pose.allPoseLandmarks
                 // Or get specific PoseLandmarks individually. These will all be null if no person
                 // was detected
-                val leftShoulder = pose.getPoseLandmark(PoseLandmark.LEFT_SHOULDER)
-                val rightShoulder = pose.getPoseLandmark(PoseLandmark.RIGHT_SHOULDER)
-                val leftElbow = pose.getPoseLandmark(PoseLandmark.LEFT_ELBOW)
-                val rightElbow = pose.getPoseLandmark(PoseLandmark.RIGHT_ELBOW)
-                val leftWrist = pose.getPoseLandmark(PoseLandmark.LEFT_WRIST)
-                val rightWrist = pose.getPoseLandmark(PoseLandmark.RIGHT_WRIST)
-                val leftHip = pose.getPoseLandmark(PoseLandmark.LEFT_HIP)
-                val rightHip = pose.getPoseLandmark(PoseLandmark.RIGHT_HIP)
-                val leftKnee = pose.getPoseLandmark(PoseLandmark.LEFT_KNEE)
-                val rightKnee = pose.getPoseLandmark(PoseLandmark.RIGHT_KNEE)
-                val leftAnkle = pose.getPoseLandmark(PoseLandmark.LEFT_ANKLE)
-                val rightAnkle = pose.getPoseLandmark(PoseLandmark.RIGHT_ANKLE)
-                val leftPinky = pose.getPoseLandmark(PoseLandmark.LEFT_PINKY)
-                val rightPinky = pose.getPoseLandmark(PoseLandmark.RIGHT_PINKY)
-                val leftIndex = pose.getPoseLandmark(PoseLandmark.LEFT_INDEX)
-                val rightIndex = pose.getPoseLandmark(PoseLandmark.RIGHT_INDEX)
-                val leftThumb = pose.getPoseLandmark(PoseLandmark.LEFT_THUMB)
-                val rightThumb = pose.getPoseLandmark(PoseLandmark.RIGHT_THUMB)
-                val leftHeel = pose.getPoseLandmark(PoseLandmark.LEFT_HEEL)
-                val rightHeel = pose.getPoseLandmark(PoseLandmark.RIGHT_HEEL)
-                val leftFootIndex = pose.getPoseLandmark(PoseLandmark.LEFT_FOOT_INDEX)
-                val rightFootIndex = pose.getPoseLandmark(PoseLandmark.RIGHT_FOOT_INDEX)
-                val nose = pose.getPoseLandmark(PoseLandmark.NOSE)
-                val leftEyeInner = pose.getPoseLandmark(PoseLandmark.LEFT_EYE_INNER)
-                val leftEye = pose.getPoseLandmark(PoseLandmark.LEFT_EYE)
-                val leftEyeOuter = pose.getPoseLandmark(PoseLandmark.LEFT_EYE_OUTER)
-                val rightEyeInner = pose.getPoseLandmark(PoseLandmark.RIGHT_EYE_INNER)
-                val rightEye = pose.getPoseLandmark(PoseLandmark.RIGHT_EYE)
-                val rightEyeOuter = pose.getPoseLandmark(PoseLandmark.RIGHT_EYE_OUTER)
-                val leftEar = pose.getPoseLandmark(PoseLandmark.LEFT_EAR)
-                val rightEar = pose.getPoseLandmark(PoseLandmark.RIGHT_EAR)
-                val leftMouth = pose.getPoseLandmark(PoseLandmark.LEFT_MOUTH)
-                val rightMouth = pose.getPoseLandmark(PoseLandmark.RIGHT_MOUTH)
+//                leftShoulder = pose.getPoseLandmark(PoseLandmark.LEFT_SHOULDER)
+//                rightShoulder = pose.getPoseLandmark(PoseLandmark.RIGHT_SHOULDER)
+//                leftElbow = pose.getPoseLandmark(PoseLandmark.LEFT_ELBOW)
+//                rightElbow = pose.getPoseLandmark(PoseLandmark.RIGHT_ELBOW)
+//                leftWrist = pose.getPoseLandmark(PoseLandmark.LEFT_WRIST)
+//                rightWrist = pose.getPoseLandmark(PoseLandmark.RIGHT_WRIST)
+//                leftHip = pose.getPoseLandmark(PoseLandmark.LEFT_HIP)
+//                rightHip = pose.getPoseLandmark(PoseLandmark.RIGHT_HIP)
+//                leftKnee = pose.getPoseLandmark(PoseLandmark.LEFT_KNEE)
+//                rightKnee = pose.getPoseLandmark(PoseLandmark.RIGHT_KNEE)
+//                leftAnkle = pose.getPoseLandmark(PoseLandmark.LEFT_ANKLE)
+//                rightAnkle = pose.getPoseLandmark(PoseLandmark.RIGHT_ANKLE)
+                //leftPinky = pose.getPoseLandmark(PoseLandmark.LEFT_PINKY)
+                //rightPinky = pose.getPoseLandmark(PoseLandmark.RIGHT_PINKY)
+                //leftIndex = pose.getPoseLandmark(PoseLandmark.LEFT_INDEX)
+                //rightIndex = pose.getPoseLandmark(PoseLandmark.RIGHT_INDEX)
+                //leftThumb = pose.getPoseLandmark(PoseLandmark.LEFT_THUMB)
+                //rightThumb = pose.getPoseLandmark(PoseLandmark.RIGHT_THUMB)
+//                val leftHeel = pose.getPoseLandmark(PoseLandmark.LEFT_HEEL)
+//                val rightHeel = pose.getPoseLandmark(PoseLandmark.RIGHT_HEEL)
+//                val leftFootIndex = pose.getPoseLandmark(PoseLandmark.LEFT_FOOT_INDEX)
+//                val rightFootIndex = pose.getPoseLandmark(PoseLandmark.RIGHT_FOOT_INDEX)
+//                val nose = pose.getPoseLandmark(PoseLandmark.NOSE)
+//                val leftEyeInner = pose.getPoseLandmark(PoseLandmark.LEFT_EYE_INNER)
+//                val leftEye = pose.getPoseLandmark(PoseLandmark.LEFT_EYE)
+//                val leftEyeOuter = pose.getPoseLandmark(PoseLandmark.LEFT_EYE_OUTER)
+//                val rightEyeInner = pose.getPoseLandmark(PoseLandmark.RIGHT_EYE_INNER)
+//                val rightEye = pose.getPoseLandmark(PoseLandmark.RIGHT_EYE)
+//                val rightEyeOuter = pose.getPoseLandmark(PoseLandmark.RIGHT_EYE_OUTER)
+//                val leftEar = pose.getPoseLandmark(PoseLandmark.LEFT_EAR)
+//                val rightEar = pose.getPoseLandmark(PoseLandmark.RIGHT_EAR)
+//                val leftMouth = pose.getPoseLandmark(PoseLandmark.LEFT_MOUTH)
+//                val rightMouth = pose.getPoseLandmark(PoseLandmark.RIGHT_MOUTH)
 
-                imageProxy.close()
+
             }
             result.addOnFailureListener { e -> Log.e("Pose",e.stackTraceToString()) }
 
             Log.i("Pose result",result.toString())
-
+            runOnUiThread{
+                poseView.setLankMarks(allPoseLandmarks)
+                poseView.invalidate()
+            }
+            
+            imageProxy.close()
         }
     }
 

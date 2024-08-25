@@ -6,9 +6,11 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.util.AttributeSet
 import android.view.View
+import com.google.mlkit.vision.pose.PoseLandmark
 import org.opencv.core.Point
 
 class PoseDetectionView (context: Context, attrs: AttributeSet?) : View(context, attrs) {
+    private var mLandmarks : MutableList<PoseLandmark>? = null
     private val paint = Paint().apply {
         color = Color.RED
         strokeWidth = 5f
@@ -17,12 +19,17 @@ class PoseDetectionView (context: Context, attrs: AttributeSet?) : View(context,
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        lines.forEach { line ->
-            canvas.drawLine(
-                line.first.x.toFloat(), line.first.y.toFloat(),
-                line.second.x.toFloat(), line.second.y.toFloat(),
-                paint
-            )
-        }
+        if (mLandmarks == null) return
+        val leftShoulderPointF  = mLandmarks!![PoseLandmark.LEFT_SHOULDER].position
+        val rightShoulderPointF = mLandmarks!![PoseLandmark.RIGHT_SHOULDER].position
+        val leftElbowPointF = mLandmarks!![PoseLandmark.LEFT_ELBOW].position
+        val rightElbowPointF = mLandmarks!![PoseLandmark.RIGHT_ELBOW].position
+        val leftWristPointF = mLandmarks!![PoseLandmark.LEFT_WRIST].position
+        val rightWristPointF = mLandmarks!![PoseLandmark.RIGHT_WRIST].position
+
+    }
+
+    fun setLankMarks(landMarks: MutableList<PoseLandmark>?) {
+        mLandmarks = landMarks
     }
 }
