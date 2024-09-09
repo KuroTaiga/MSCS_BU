@@ -126,7 +126,7 @@ abstract class AbstractCameraXActivity<R> : BaseModuleActivity() {
         cameraProviderFuture.addListener({
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
             val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
-            val targetResolutionSize = Size(1440,1440)
+            val targetResolutionSize = Size(360,480)
 
             val mResolutionSelector = ResolutionSelector.Builder()
 //                .setAspectRatioStrategy(

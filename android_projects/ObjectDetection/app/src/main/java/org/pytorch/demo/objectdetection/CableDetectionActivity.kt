@@ -1,6 +1,8 @@
 package org.pytorch.demo.objectdetection
 
 import android.Manifest
+import android.content.DialogInterface
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -9,10 +11,14 @@ import android.graphics.Paint
 import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
 import android.os.PersistableBundle
+import android.provider.MediaStore
 import android.util.Log
 import android.view.TextureView
+import android.view.View
+import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
@@ -34,9 +40,9 @@ import org.pytorch.demo.objectdetection.AbstractCameraXActivity.Companion
 import java.nio.ByteBuffer
 
 class CableDetectionActivity: AppCompatActivity() {
+    private val MIN_DISTANCE_THRESHOLD = 20.0
     private lateinit var previewView: PreviewView
     private lateinit var cableTextView: TextView
-    private lateinit var cableView: LineView
     private lateinit var cableOverlayView: CableOverlayView
     private var previousFrame: Mat? = null
     private val lines = mutableListOf<Pair<Point, Point>>()
@@ -65,6 +71,34 @@ class CableDetectionActivity: AppCompatActivity() {
             (Toast.makeText(this, "OpenCV initialization failed!", Toast.LENGTH_LONG)).show();
             return;
         }
+        val buttonSelect = findViewById<Button>(R.id.selectButton)
+        buttonSelect.setOnClickListener(object : View.OnClickListener {
+            override fun onClick(v: View) {
+                previewView.setVisibility(View.INVISIBLE)
+
+                val options = arrayOf<CharSequence>("Choose from Videos", "Take Video", "Cancel")
+                val builder = AlertDialog.Builder(this@CableDetectionActivity)
+                builder.setTitle("New Test Video")
+
+                builder.setItems(options, object : DialogInterface.OnClickListener {
+                    override fun onClick(dialog: DialogInterface, item: Int) {
+                        if ((options[item] == "Take Video")) {
+                            val takeVideo = Intent(MediaStore.ACTION_VIDEO_CAPTURE)
+                            startActivityForResult(takeVideo, 0)
+                        } else if ((options[item] == "Choose from Videos")) {
+                            val pickVideo = Intent(
+                                Intent.ACTION_PICK,
+                                MediaStore.Images.Media.INTERNAL_CONTENT_URI
+                            )
+                            startActivityForResult(pickVideo, 1)
+                        } else if ((options[item] == "Cancel")) {
+                            dialog.dismiss()
+                        }
+                    }
+                })
+                builder.show()
+            }
+        })
     }
 
     override fun onRequestPermissionsResult(
@@ -159,6 +193,8 @@ class CableDetectionActivity: AppCompatActivity() {
                 val linesMat = Mat()
                 Imgproc.HoughLinesP(edges, linesMat, 1.0, Math.PI / 180, 50, 50.0, 10.0)
 
+                val filteredLines = mutableListOf<Pair<Point,Point>>()
+
                 for (i in 0 until linesMat.rows()) {
                     val line = linesMat[i, 0]
                     val pt1 = Point(line[0], line[1])
@@ -171,10 +207,19 @@ class CableDetectionActivity: AppCompatActivity() {
 
                     if (previousLineLengths.isEmpty() || isLengthChangeAcceptable(lineLength, i)) {
                         // Convert points to match the preview view's coordinate system
-                        val convertedPt1 = convertPoint(pt1, width, height)
-                        val convertedPt2 = convertPoint(pt2, width, height)
 
-                        lines.add(Pair(convertedPt1, convertedPt2) as Pair<Point, Point>)
+                        val isFarEnough = filteredLines.all { existingLine ->
+                            val midPoint1 = midpoint(existingLine.first, existingLine.second)
+                            val midPoint2 = midpoint(pt1, pt2)
+                            calculateLineLength(midPoint1, midPoint2) > MIN_DISTANCE_THRESHOLD
+                        }
+                        if (isFarEnough){
+                            val convertedPt1 = convertPoint(pt1, width, height)
+                            val convertedPt2 = convertPoint(pt2, width, height)
+                            val linePair = Pair(convertedPt1, convertedPt2) as Pair<Point, Point>
+                            lines.add(linePair)
+                            filteredLines.add(linePair)
+                        }
                     }
                 }
 
@@ -199,6 +244,10 @@ class CableDetectionActivity: AppCompatActivity() {
         } finally {
             imageProxy.close()
         }
+    }
+
+    private fun midpoint(pt1: Point, pt2: Point): Point {
+        return Point((pt1.x + pt2.x) / 2, (pt1.y + pt2.y) / 2)
     }
 
 

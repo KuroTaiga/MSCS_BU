@@ -5,6 +5,8 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 
 import android.util.Log
+import android.util.Size
+import android.widget.TextView
 
 import android.widget.Toast
 import androidx.annotation.OptIn
@@ -14,6 +16,8 @@ import androidx.camera.core.CameraSelector
 import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
+import androidx.camera.core.resolutionselector.ResolutionSelector
+import androidx.camera.core.resolutionselector.ResolutionStrategy
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.app.ActivityCompat
@@ -31,6 +35,7 @@ class PoseEstimationActivity: AppCompatActivity() {
     private lateinit var previewView: PreviewView
     private lateinit var poseView : PoseDetectionView
     private lateinit var poseDetector: PoseDetector
+    private lateinit var poseText : TextView
 
     private var landMarksList : MutableList<PoseLandmark>? = null
 //    private lateinit var leftShoulder : PoseLandmark
@@ -51,6 +56,7 @@ class PoseEstimationActivity: AppCompatActivity() {
         setContentView(R.layout.activity_pose_estimation)
         previewView = findViewById(R.id.posePreview)
         poseView = findViewById(R.id.poseOverlay)
+        poseText = findViewById(R.id.poseText)
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
             != PackageManager.PERMISSION_GRANTED
@@ -92,8 +98,22 @@ class PoseEstimationActivity: AppCompatActivity() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
         cameraProviderFuture.addListener(Runnable {
             val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
-
-            val preview = androidx.camera.core.Preview.Builder().build().also {
+            val targetResolutionSize = Size(1440,1440)
+            val mResolutionSelector = ResolutionSelector.Builder()
+//                .setAspectRatioStrategy(
+//                    AspectRatioStrategy(
+//
+//                        AspectRatio.RATIO_4_3,
+//                        AspectRatioStrategy.FALLBACK_RULE_NONE
+//                    )
+//                )
+                .setResolutionStrategy(
+                    ResolutionStrategy(targetResolutionSize,
+                        ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER)
+                )
+                .build()
+            val preview = androidx.camera.core.Preview.Builder()
+                .setResolutionSelector(mResolutionSelector).build().also {
                 it.setSurfaceProvider(previewView.surfaceProvider)
             }
 
@@ -120,6 +140,7 @@ class PoseEstimationActivity: AppCompatActivity() {
     @OptIn(ExperimentalGetImage::class)
     @WorkerThread
     private fun processImage(imageProxy: ImageProxy) {
+        Log.i("Pose Debug","Processing pose")
         val mediaImage = imageProxy.image
         if (mediaImage != null) {
             val image = InputImage.fromMediaImage(mediaImage, imageProxy.imageInfo.rotationDegrees)
@@ -132,6 +153,8 @@ class PoseEstimationActivity: AppCompatActivity() {
                 runOnUiThread{
                     poseView.setLankMarks(landMarksList)
                     poseView.invalidate()
+
+                    poseText.setText("Landmark size: "+landMarksList!!.size.toString())
                 }
                 // Or get specific PoseLandmarks individually. These will all be null if no person
                 // was detected

@@ -31,6 +31,7 @@ class PoseDetectionView : View{
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         if (mLandmarks == null) return
+        if (mLandmarks!!.size == 0) return
 //        for (pInt in mPaintPoints){
 //            val currPointF = mLandmarks!![pInt].position
 //            mPaintPoint = Paint()
@@ -43,6 +44,7 @@ class PoseDetectionView : View{
             Log.i("y",currPointF.y.toString())
             canvas.drawCircle(currPointF.x,currPointF.y,5f,mPaintPoint!!)
         }
+        Log.i("Landmark size", mLandmarks!!.size.toString())
         drawFigure(canvas)
 
 
